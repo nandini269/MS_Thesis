@@ -90,7 +90,7 @@ def create_random_ds(network_names, trainloader, batch_size, sub_size = 5000):
     dataset = datasets.CIFAR10(root=data_loc, train=True, download=True, transform=transform_train)
     subset = torch.utils.data.Subset(dataset, np.arange(sub_size))
     random_trainloader = torch.utils.data.DataLoader(subset, shuffle=False, batch_size=batch_size, num_workers=1)
-        return random_trainloader
+    return random_trainloader
 
 
 # Creates a trainloader for the "super dataset." The super dataset comprises of the 500 most helpful images
