@@ -83,7 +83,7 @@ def check_distribution(dataset, top_help_list):
             # show(make_grid(img_list, padding=100))
 
 # Creates a random trainloader for a randomly subsampled dataset. Size = 5000
-def create_random_ds(network_names, trainloader, batch_size, sub_size = 5000):
+def create_random_ds(network_names, trainloader, batch_size, sub_size = 15000):
     transform_train = transforms.Compose(
         [transforms.RandomCrop(32, padding=4), transforms.RandomHorizontalFlip(), transforms.ToTensor(),
          transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)), ])
@@ -96,13 +96,13 @@ def create_random_ds(network_names, trainloader, batch_size, sub_size = 5000):
 # Creates a trainloader for the "super dataset." The super dataset comprises of the 500 most helpful images
 # per class per model. (Since we have 3 models and 10 classes this dataset is 3 * 10 * 500)
 # TODO: Must check that there is no randomization that is disturbing the indexing
-def create_super_ds(network_names, trainloader, batch_size):
+def create_super_ds(network_names, trainloader, batch_size, helpful_or_harmful = "helpful"):
     top_help_set = set()
     top_help_list = []
     for network_name in network_names:
         influence_d = get_influences_from_json(network_name)
         for i in range(10):
-            top_help = influence_d[str(i)]["helpful"]  # these are 500
+            top_help = influence_d[str(i)][helpful_or_harmful]  # these are 500
             top_help_set.update(top_help)
             top_help_list.extend(top_help)
 
@@ -236,6 +236,19 @@ def influence_dataset():
     # print("-------------- Training and Testing using Original DS --------------")
     # train_models(network_names, "cifar_10", trainloader, testloader, batch_size)
 
+def harmful_dataset():
+    batch_size = 128
+    network_names = ["vgg", "lenet","resnet"] 
+    # network_names = ["models/vgg", "models/lenet","models/resnet"] 
+    dataset = "cifar_10"
+    model = network(network_names[0], dataset)  #how to pick hyperparameters?
+    model.cuda()
+    trainloader, testloader = data_loader(model, dataset, batch_size)
+    # run_influence_calc(network_names, "cifar_10", trainloader, testloader, batch_size)
+    super_trainloader = create_super_ds(network_names, trainloader, batch_size, "harmful")
+    train_models(network_names, "cifar_10", super_trainloader, testloader, batch_size)
+
+
 def baseline_dataset():
     # create function that tests accuracy on a randomly subsampled, well distributed dataset
     batch_size = 128
@@ -263,6 +276,7 @@ def full_dataset():
 if __name__ == '__main__':
     # influence_dataset()
     baseline_dataset()
+    harmful_dataset()
     # full_dataset()
     
 
