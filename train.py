@@ -43,7 +43,7 @@ def run_influence_calc(network_names, dataset, trainloader, testloader, batch_si
         # model.to(device).apply(init_weights)
         ptif.init_logging()
         config = ptif.get_default_config()
-        config['outdir'] = network_name
+        config['outdir'] = dir_name
         config['gpu'] = 1
         ptif.calc_img_wise(config, model, trainloader, testloader)
 
