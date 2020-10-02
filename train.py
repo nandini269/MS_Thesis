@@ -35,8 +35,9 @@ def run_influence_calc(network_names, dataset, trainloader, testloader, batch_si
 #num_epoch, batch_size, optim_name, lr, momentum, wd, lr_scheduler_type, #hyper_lr, step_size, lr_decay, t_0, t_mult, model_loc, seed):
     for network_name in network_names:
         print(network_name+" is being run")
-        if not os.path.exists(network_name):
-            os.makedirs(network_name)
+        dir_name = dataset+'_influence_/'+network_name
+        if not os.path.exists(dir_name):
+            os.makedirs(dir_name)
         model = network(network_name, dataset)  #how to pick hyperparameters?
         model.cuda()
         # model.to(device).apply(init_weights)
@@ -222,62 +223,47 @@ def test(testloader, net):
         print('Accuracy of %5s : %2d %%' % (
             classes[i], 100 * class_correct[i] / class_total[i]))
 
-def influence_dataset():
-    batch_size = 128
-    network_names = ["vgg", "lenet","resnet"] 
-    # network_names = ["models/vgg", "models/lenet","models/resnet"] 
-    dataset = "cifar_10"
-    model = network(network_names[0], dataset)  #how to pick hyperparameters?
-    model.cuda()
-    trainloader, testloader = data_loader(model, dataset, batch_size)
-    # run_influence_calc(network_names, "cifar_10", trainloader, testloader, batch_size)
-    super_trainloader = create_super_ds(network_names, trainloader, batch_size)
+def influence_dataset(network_names, dataset, trainloader, testloader, batch_size):
+    super_trainloader = create_super_ds(network_names, trainloader, batch_size, "helpful")
+    print("-------------- Training and Testing using max Inflence DS --------------")
     train_models(network_names, "cifar_10", super_trainloader, testloader, batch_size)
-    # print("-------------- Training and Testing using Original DS --------------")
-    # train_models(network_names, "cifar_10", trainloader, testloader, batch_size)
 
-def harmful_dataset():
-    batch_size = 128
-    network_names = ["vgg", "lenet","resnet"] 
-    # network_names = ["models/vgg", "models/lenet","models/resnet"] 
-    dataset = "cifar_10"
-    model = network(network_names[0], dataset)  #how to pick hyperparameters?
-    model.cuda()
-    trainloader, testloader = data_loader(model, dataset, batch_size)
-    # run_influence_calc(network_names, "cifar_10", trainloader, testloader, batch_size)
+
+def harmful_dataset(network_names, dataset, trainloader, testloader, batch_size):
     super_trainloader = create_super_ds(network_names, trainloader, batch_size, "harmful")
+    print("-------------- Training and Testing using min influence DS --------------")
     train_models(network_names, "cifar_10", super_trainloader, testloader, batch_size)
 
 
-def baseline_dataset():
+def baseline_dataset(network_names, dataset, trainloader, testloader, batch_size):
     # create function that tests accuracy on a randomly subsampled, well distributed dataset
-    batch_size = 128
-    network_names = ["vgg", "lenet","resnet"] 
-    # network_names = ["models/vgg", "models/lenet","models/resnet"] 
-    dataset = "cifar_10"
-    model = network(network_names[0], dataset)  #how to pick hyperparameters?
-    model.cuda()
-    trainloader, testloader = data_loader(model, dataset, batch_size)
-    # experiment1(network_names, "cifar_10", trainloader, testloader, batch_size)
     random_trainloader = create_random_ds(network_names, trainloader, batch_size)
+    print("-------------- Training and Testing using Random DS --------------")
     train_models(network_names, "cifar_10", random_trainloader, testloader, batch_size)
 
-def full_dataset():
-    batch_size = 128
-    network_names = ["vgg", "lenet","resnet"] 
-    # network_names = ["models/vgg", "models/lenet","models/resnet"] 
-    dataset = "cifar_10"
-    model = network(network_names[0], dataset)  #how to pick hyperparameters?
-    model.cuda()
-    trainloader, testloader = data_loader(model, dataset, batch_size)
+def full_dataset(network_names, dataset, trainloader, testloader, batch_size):
+    
+    # network_names = ["vgg", "lenet","resnet"] 
+    # # network_names = ["models/vgg", "models/lenet","models/resnet"] 
+    # # dataset = "cifar_10"
+    # model = network(network_names[0], dataset)  #how to pick hyperparameters?
+    # model.cuda()
+    # trainloader, testloader = data_loader(model, dataset, batch_size)
     print("-------------- Training and Testing using Original DS --------------")
     train_models(network_names, "cifar_10", trainloader, testloader, batch_size)
 #---------------------------------------
 if __name__ == '__main__':
-    # influence_dataset()
-    baseline_dataset()
-    harmful_dataset()
-    # full_dataset()
+    dataset = "mnist"               # run for for MNIST and store results in a csv or something
+    batch_size = 128
+    network_names = ["vgg", "lenet","resnet","mlp"] # use mlp just for mnist
+    model = network(network_names[0], dataset)
+    model.cuda()  #dummy model j
+    trainloader, testloader = data_loader(model, dataset, batch_size)
+    run_influence_calc(network_names, dataset, trainloader, testloader, batch_size = batch_size) 
+    # influence_dataset(network_names, dataset, trainloader, testloader, batch_size)
+    # baseline_dataset(network_names, dataset, trainloader, testloader, batch_size) #add code to save results
+    # harmful_dataset(network_names, dataset, trainloader, testloader, batch_size)
+    # full_dataset(network_names, dataset, trainloader, testloader, batch_size)
     
 
 
