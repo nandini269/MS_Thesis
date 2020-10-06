@@ -393,10 +393,10 @@ class VGG(nn.Module):
 
     def __init__(self, vgg_name, num_classes, num_channels):
         super(VGG, self).__init__()
-        self.features = self._make_layers(cfg[vgg_name])
+        self.features = self._make_layers(cfg[vgg_name],num_channels)
         self.dropout = nn.Dropout(0.5)
         self.classifier = nn.Linear(512, num_classes)
-        self.num_channels = num_channels
+        # self.num_channels = num_channels
 
     def forward(self, x):
         out = self.features(x)
@@ -406,9 +406,9 @@ class VGG(nn.Module):
         return out
 
     @staticmethod
-    def _make_layers(cfg):
+    def _make_layers(cfg, num_channels):
         layers = []
-        in_channels = self.num_channels
+        in_channels = num_channels
         for x in cfg:
             if x == 'M':
                 layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
