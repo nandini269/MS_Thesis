@@ -85,11 +85,11 @@ class BottleNeck(nn.Module):
 
 class ResNet(nn.Module):
 
-    def __init__(self, block, num_blocks, num_classes=10):
+    def __init__(self, block, num_blocks, num_channels, num_classes=10):
         super(ResNet, self).__init__()
         self.in_planes = 64
 
-        self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
+        self.conv1 = nn.Conv2d(num_channels, 64, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(64)
         self.layer1 = self._make_layer(block, 64, num_blocks[0], stride=1)
         self.layer2 = self._make_layer(block, 128, num_blocks[1], stride=2)
@@ -117,24 +117,24 @@ class ResNet(nn.Module):
         return out
 
 
-def resnet_18(num_classes):
-    return ResNet(BasicBlock, [2, 2, 2, 2], num_classes)
+def resnet_18(num_channels, num_classes):
+    return ResNet(BasicBlock, [2, 2, 2, 2], num_channels, num_classes)
 
 
-def resnet_34(num_classes):
-    return ResNet(BasicBlock, [3, 4, 6, 3], num_classes)
+def resnet_34(num_channels, num_classes):
+    return ResNet(BasicBlock, [3, 4, 6, 3], num_channels, num_classes)
 
 
-def resnet_50(num_classes):
-    return ResNet(BottleNeck, [3, 4, 6, 3], num_classes)
+def resnet_50(num_channels, num_classes):
+    return ResNet(BottleNeck, [3, 4, 6, 3], num_channels, num_classes)
 
 
-def resnet_101(num_classes):
-    return ResNet(BottleNeck, [3, 4, 23, 3], num_classes)
+def resnet_101(num_channels, num_classes):
+    return ResNet(BottleNeck, [3, 4, 23, 3], num_channels, num_classes)
 
 
-def resnet_152(num_classes):
-    return ResNet(BottleNeck, [3, 8, 36, 3], num_classes)
+def resnet_152(num_channelse, num_classes):
+    return ResNet(BottleNeck, [3, 8, 36, 3], num_channels, num_classes)
 
 
 """
@@ -391,11 +391,12 @@ cfg = {
 
 class VGG(nn.Module):
 
-    def __init__(self, vgg_name, num_classes):
+    def __init__(self, vgg_name, num_classes, num_channels):
         super(VGG, self).__init__()
         self.features = self._make_layers(cfg[vgg_name])
         self.dropout = nn.Dropout(0.5)
         self.classifier = nn.Linear(512, num_classes)
+        self.num_channels = num_channels
 
     def forward(self, x):
         out = self.features(x)
@@ -407,7 +408,7 @@ class VGG(nn.Module):
     @staticmethod
     def _make_layers(cfg):
         layers = []
-        in_channels = 3
+        in_channels = self.num_channels
         for x in cfg:
             if x == 'M':
                 layers += [nn.MaxPool2d(kernel_size=2, stride=2)]
@@ -420,15 +421,15 @@ class VGG(nn.Module):
         return nn.Sequential(*layers)
 
 
-def vgg_11(num_classes):
-    return VGG('VGG11', num_classes)
+def vgg_11(num_classes, num_channels):
+    return VGG('VGG11', num_classes, num_channels)
 
 
 def get_network(network_name, num_classes, num_channels=1):
     if network_name == 'wide_resnet':
         return wide_resnet_28_10(num_classes)
     elif network_name == 'resnet':
-        return resnet_18(num_classes)
+        return resnet_18(num_classes, num_channels)
     elif network_name == 'lenet':
         return lenet_5(num_classes, num_channels)
     elif network_name == 'mlp':
@@ -436,6 +437,6 @@ def get_network(network_name, num_classes, num_channels=1):
     elif network_name == 'densenet':
         return densenet_bc_100(num_classes)
     elif network_name == 'vgg':
-        return vgg_11(num_classes)
+        return vgg_11(num_classes, num_channels)
     else:
         raise Exception('network is not supported')
