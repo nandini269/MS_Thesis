@@ -255,7 +255,7 @@ def full_dataset(network_names, dataset, trainloader, testloader, batch_size):
 if __name__ == '__main__':
     dataset = "mnist"               # run for for MNIST and store results in a csv or something
     batch_size = 128
-    network_names = ["vgg", "lenet","resnet","mlp"] # use mlp just for mnist
+    network_names = ["resnet","mlp"]#["vgg", "lenet","resnet","mlp"] # use mlp just for mnist
     model = network(network_names[0], dataset)
     model.cuda()  #dummy model j
     trainloader, testloader = data_loader(model, dataset, batch_size)

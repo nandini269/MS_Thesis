@@ -429,7 +429,7 @@ def get_network(network_name, num_classes, num_channels=1):
     if network_name == 'wide_resnet':
         return wide_resnet_28_10(num_classes)
     elif network_name == 'resnet':
-        return resnet_18(num_classes, num_channels)
+        return resnet_18(num_channels, num_classes)
     elif network_name == 'lenet':
         return lenet_5(num_classes, num_channels)
     elif network_name == 'mlp':
