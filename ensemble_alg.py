@@ -224,7 +224,6 @@ def algorithm2_random():
         val_losses = []
         models = []
         inds= []
-        # for i,network in enumerate(network_names): # maybe can just randomly select a model and train
         network_name = np.random.choice(network_names)
         # evaluate or train on subset and choose best
         model, val_loss = train_and_eval_model(network_name, dataset, poor_subset_loader, valloader, batch_size, num_epochs)
@@ -241,4 +240,4 @@ def algorithm2_random():
     print(len(ensemble))
     print(test_acc)
 
-algorithm2()
+algorithm2_random()
