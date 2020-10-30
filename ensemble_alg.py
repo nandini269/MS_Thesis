@@ -88,7 +88,7 @@ def train_and_eval_model(network_name, dataset, trainloader, valloader, batch_si
 def get_poor_subset(ensemble, trainloader):
     poor_subsets = []
     with torch.no_grad():
-        for data in testloader:  # per batch
+        for data in trainloader:  # per batch
             predicteds = []
             images, labels = data[0].cuda(), data[1].cuda()
             for model in ensemble:
@@ -166,7 +166,7 @@ def algorithm2():
         ensemble[best_model] = val_loss
         best_i = inds[best_ind]
         ensemble_nets.add(network_names[best_i])
-    print(ensemble)
+    print(len(ensemble))
     #test
 
     # Current model: look at gradient error w.r.t the parameters = residual
