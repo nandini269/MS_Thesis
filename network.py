@@ -424,19 +424,32 @@ class VGG(nn.Module):
 def vgg_11(num_classes, num_channels):
     return VGG('VGG11', num_classes, num_channels)
 
+def vgg_13(num_classes, num_channels):
+    return VGG('VGG13', num_classes, num_channels)
+
+def vgg_16(num_classes, num_channels):
+    return VGG('VGG16', num_classes, num_channels)
 
 def get_network(network_name, num_classes, num_channels=1):
     if network_name == 'wide_resnet':
         return wide_resnet_28_10(num_classes)
-    elif network_name == 'resnet':
+    elif network_name == 'resnet18':
         return resnet_18(num_channels, num_classes)
+    elif network_name == 'resnet34':
+        return resnet_34(num_channels, num_classes)
+    elif network_name == 'resnet50':
+        return resnet_50(num_channels, num_classes)
     elif network_name == 'lenet':
         return lenet_5(num_classes, num_channels)
     elif network_name == 'mlp':
         return mlp(num_classes)
     elif network_name == 'densenet':
         return densenet_bc_100(num_classes)
-    elif network_name == 'vgg':
+    elif network_name == 'vgg11':
         return vgg_11(num_classes, num_channels)
+    elif network_name == 'vgg13':
+        return vgg_13(num_classes, num_channels)
+    elif network_name == 'vgg16':
+        return vgg_16(num_classes, num_channels)
     else:
         raise Exception('network is not supported')
