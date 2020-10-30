@@ -32,9 +32,9 @@ def test(testloader, net):
             correct += (predicted == labels).sum().item()
             _, pred = torch.max(outputs, 1)
             print(outputs)
-            print(outputs.data)
+            print(outputs.data) # test and print
             c = (pred == labels).squeeze()
-            for i in range(4): # why is this 4?
+            for i in range(4): # why is this 4? test and print
                 label = labels[i]
                 class_correct[label] += c[i].item()
                 class_total[label] += 1
@@ -84,6 +84,38 @@ def train_and_eval_model(network_name, dataset, trainloader, valloader, batch_si
     return net, val_loss
     # print('Testing ' + network_name)
     # test(testloader, net)
+
+def get_ensemble_preds(ensemble, dataloader):
+    # poor_subsets = []
+    correct = 0
+    total = 0
+    class_correct = list(0. for i in range(10))
+    class_total = list(0. for i in range(10))
+    with torch.no_grad():
+        for data in dataloader:  # per batch
+            predicteds = []
+            images, labels = data[0].cuda(), data[1].cuda()
+            for model in ensemble:
+                outputs = model(images)
+                _, predicted = torch.max(outputs.data, 1)  # get median predicted
+                print(predicted.shape)
+                predicteds.append(predicted)
+            predicteds = torch.vstack(predicteds)
+            print(predicteds.shape)
+            predicted_medians = torch.mode(predicteds, axis = 1) # fix
+            total += labels.size(0)
+            correct += (predicted_medians == labels).sum().item()
+            # _, pred = torch.max(outputs, 1)
+            # print(outputs)
+            # print(outputs.data)
+            # c = (pred == labels).squeeze()
+            # for i in range(4): # why is this 4?
+            #     label = labels[i]
+            #     class_correct[label] += c[i].item()
+            #     class_total[label] += 1
+    print('Accuracy of the network on the 10000 test images: %d %%' % (
+        100 * correct / total))
+    return (correct/total)
 
 def get_poor_subset(ensemble, trainloader):
     poor_subsets = []
@@ -144,7 +176,7 @@ def algorithm2():
     trainloader,valloader,testloader = get_mnist(batch_size)
     ensemble = {}
     curr =  network_names[0]  #huh?
-    model, val_loss = train_and_eval_model(curr, dataset, trainloader, valloader, batch_size, num_epochs)
+    model, val_loss = train_and_eval_model(curr, dataset, trainloader, valloader, batch_size, num_epochs) # don't use full dataset
     ensemble[model] = val_loss
     ensemble_nets = set()
     ensemble_nets.add(curr)
@@ -166,7 +198,9 @@ def algorithm2():
         ensemble[best_model] = val_loss
         best_i = inds[best_ind]
         ensemble_nets.add(network_names[best_i])
+    test_acc= get_ensemble_preds(ensemble, testloader)
     print(len(ensemble))
+    print(test_acc)
     #test
 
     # Current model: look at gradient error w.r.t the parameters = residual
