@@ -136,7 +136,8 @@ def get_mnist(batch_size):
 # removing the last layer
 
 
-def algorithm2():              
+def algorithm2():    
+    dataset = "mnist"          
     network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34","mlp"] # use mlp just for mnist
     batch_size = 128
     num_epochs = 20
