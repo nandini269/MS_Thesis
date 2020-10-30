@@ -168,3 +168,4 @@ def algorithm2():
     # Current model: look at gradient error w.r.t the parameters = residual
     
     # Pick best model for that subset
+algorithm2()
