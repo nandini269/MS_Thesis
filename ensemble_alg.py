@@ -31,8 +31,8 @@ def test(testloader, net):
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
             _, pred = torch.max(outputs, 1)
-            print(outputs)
-            print(outputs.data) # test and print
+            # print(outputs)
+            # print(outputs.data) # test and print
             c = (pred == labels).squeeze()
             for i in range(4): # why is this 4? test and print
                 label = labels[i]
@@ -168,7 +168,7 @@ def get_mnist(batch_size):
 # removing the last layer
 
 
-def algorithm2():    
+def algorithm2_loop():    
     dataset = "mnist"          
     network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34","mlp"] # use mlp just for mnist
     batch_size = 128
@@ -206,4 +206,39 @@ def algorithm2():
     # Current model: look at gradient error w.r.t the parameters = residual
     
     # Pick best model for that subset
+def algorithm2_random():    
+    dataset = "mnist"          
+    network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34","mlp"] # use mlp just for mnist
+    batch_size = 128
+    num_epochs = 20
+    trainloader,valloader,testloader = get_mnist(batch_size)
+    ensemble = {}
+    curr =  network_names[0]  #huh?
+    model, val_loss = train_and_eval_model(curr, dataset, trainloader, valloader, batch_size, num_epochs) # don't use full dataset
+    ensemble[model] = val_loss
+    ensemble_nets = set()
+    ensemble_nets.add(curr)
+    while len(ensemble) < len(network_names) :
+        # Take subset of points poorly predicted poor_subset
+        poor_subset_loader = get_poor_subset(ensemble, trainloader)
+        val_losses = []
+        models = []
+        inds= []
+        # for i,network in enumerate(network_names): # maybe can just randomly select a model and train
+        network_name = np.random.choice(network_names)
+        # evaluate or train on subset and choose best
+        model, val_loss = train_and_eval_model(network_name, dataset, poor_subset_loader, valloader, batch_size, num_epochs)
+        models.append(model)
+        val_losses.append(val_loss)   #do we want to pick based on val_loss?
+        inds.append(i)
+
+        best_ind = np.argmin(val_loss)
+        best_model = models[best_ind]
+        ensemble[best_model] = val_loss
+        best_i = inds[best_ind]
+        ensemble_nets.add(network_names[best_i])
+    test_acc= get_ensemble_preds(ensemble, testloader)
+    print(len(ensemble))
+    print(test_acc)
+
 algorithm2()
