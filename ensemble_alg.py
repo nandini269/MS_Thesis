@@ -107,7 +107,7 @@ def get_poor_subset(ensemble, trainloader):
     poor_loader = torch.utils.data.DataLoader(poor_subsets, shuffle=True, batch_size=batch_size, num_workers=1)
     return poor_loader
 
-def get_mnist():
+def get_mnist(batch_size):
     transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.1307,), (0.3081,))])
     dataset = datasets.MNIST(root=data_loc, train=True, download=True, transform=transform)
     test_dataset = datasets.MNIST(root=data_loc, train=False, transform=transform, )
@@ -138,7 +138,9 @@ def get_mnist():
 
 def algorithm2():              
     network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34","mlp"] # use mlp just for mnist
-    trainloader,valloader,testloader = get_mnist()
+    batch_size = 128
+    num_epochs = 20
+    trainloader,valloader,testloader = get_mnist(batch_size)
     ensemble = {}
     curr =  network_names[0]  #huh?
     model, val_loss = train_and_eval_model(curr, dataset, trainloader, valloader, batch_size, num_epochs)
