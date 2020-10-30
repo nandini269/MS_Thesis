@@ -115,7 +115,7 @@ def get_mnist(batch_size):
     # split into validation 
     train_size = round(0.75*len(dataset))
     val_size = len(dataset) - train_size 
-    train, val = torch.utils.data.random_split(dataset, [train_size, val_size], generator=torch.Generator().manual_seed(42))
+    train, val = torch.utils.data.random_split(dataset, [train_size, val_size]) #generator=torch.Generator().manual_seed(42))
     trainloader = torch.utils.data.DataLoader(train, shuffle=True, batch_size=batch_size, num_workers=1)
     valloader = torch.utils.data.DataLoader(val, shuffle=True, batch_size=batch_size, num_workers=1)
     return trainloader,valloader,testloader
@@ -165,6 +165,7 @@ def algorithm2():
         ensemble[best_model] = val_loss
         best_i = inds[best_ind]
         ensemble_nets.add(network_names[best_i])
+    print(ensemble)
     #test
 
     # Current model: look at gradient error w.r.t the parameters = residual
