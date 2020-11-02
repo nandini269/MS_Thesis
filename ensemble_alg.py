@@ -16,6 +16,12 @@ from torchvision.utils import make_grid
 import numpy as np
 import random
 
+from multiprocessing import set_start_method
+try:
+    set_start_method('spawn')
+except RuntimeError:
+    pass
+
 # Prints per class test accuracy 
 def test(testloader, net):
     correct = 0
@@ -46,11 +52,7 @@ def test(testloader, net):
     # for i in range(10):
     #     print('Accuracy of %5s : %2d %%' % (
     #         classes[i], 100 * class_correct[i] / class_total[i]))
-# from multiprocessing import set_start_method
-# try:
-#     set_start_method('spawn')
-# except RuntimeError:
-#     pass
+
 
 def train_and_eval_model(network_name, dataset, trainloader, valloader, batch_size, num_epochs):
     # needs to return model and validation error
