@@ -128,9 +128,9 @@ def get_poor_subset(ensemble, trainloader):
                 _, predicted = torch.max(outputs.data, 1)  # get median predicted
                 print(predicted.shape)
                 predicteds.append(predicted)
-            predicteds = np.concatenate(predicteds)
+            predicteds = torch.vstack(predicteds)
             print(predicteds.shape)
-            predicted_medians = np.median(predicteds, axis = 1)
+            predicted_medians = torch.mode(predicteds, axis = 1)
             print(predicted_medians.shape)
             poor_subset = images[predicted_medians!=labels]
             print(poor_subset.shape)
