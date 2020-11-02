@@ -46,7 +46,11 @@ def test(testloader, net):
     # for i in range(10):
     #     print('Accuracy of %5s : %2d %%' % (
     #         classes[i], 100 * class_correct[i] / class_total[i]))
-
+# from multiprocessing import set_start_method
+# try:
+#     set_start_method('spawn')
+# except RuntimeError:
+#     pass
 
 def train_and_eval_model(network_name, dataset, trainloader, valloader, batch_size, num_epochs):
     # needs to return model and validation error
@@ -240,4 +244,5 @@ def algorithm2_random():
     print(len(ensemble))
     print(test_acc)
 
-algorithm2_random()
+if __name__ == '__main__':
+    algorithm2_random()
