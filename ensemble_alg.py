@@ -133,9 +133,9 @@ def get_poor_subset(ensemble, trainloader):
             mode_vals, predicted_modes = torch.mode(predicteds)
             print(predicted_modes.shape)
             poor_subset = images[predicted_modes!=labels]
-            print(poor_subset.shape)
+            # print(poor_subset.shape)
             poor_subsets.append(poor_subset)
-        print(poor_subsets.shape)
+        print(len(poor_subsets))
     poor_loader = torch.utils.data.DataLoader(poor_subsets, shuffle=True, batch_size=batch_size, num_workers=1)
     return poor_loader
 
