@@ -16,11 +16,11 @@ from torchvision.utils import make_grid
 import numpy as np
 import random
 
-from multiprocessing import set_start_method
-try:
-    set_start_method('spawn')
-except RuntimeError:
-    pass
+# from multiprocessing import set_start_method
+# try:
+#     set_start_method('spawn')
+# except RuntimeError:
+#     pass
 
 # Prints per class test accuracy 
 def test(testloader, net):
