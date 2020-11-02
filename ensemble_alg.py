@@ -117,7 +117,7 @@ def get_ensemble_preds(ensemble, dataloader):
         100 * correct / total))
     return (correct/total)
 
-def get_poor_subset(ensemble, trainloader):
+def get_poor_subset(ensemble, trainloader,batch_size):
     poor_subsets = []
     with torch.no_grad():
         for data in trainloader:  # per batch
@@ -172,7 +172,7 @@ def algorithm2_loop():
     dataset = "mnist"          
     network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34","mlp"] # use mlp just for mnist
     batch_size = 128
-    num_epochs = 20
+    num_epochs = 10
     trainloader,valloader,testloader = get_mnist(batch_size)
     ensemble = {}
     curr =  network_names[0]  #huh?
@@ -182,7 +182,7 @@ def algorithm2_loop():
     ensemble_nets.add(curr)
     while len(ensemble) < len(network_names) :
         # Take subset of points poorly predicted poor_subset
-        poor_subset_loader = get_poor_subset(ensemble, trainloader)
+        poor_subset_loader = get_poor_subset(ensemble, trainloader, batch_size)
         val_losses = []
         models = []
         inds= []
@@ -210,7 +210,7 @@ def algorithm2_random():
     dataset = "mnist"          
     network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34","mlp"] # use mlp just for mnist
     batch_size = 128
-    num_epochs = 20
+    num_epochs = 10
     trainloader,valloader,testloader = get_mnist(batch_size)
     ensemble = {}
     curr =  network_names[0]  #huh?
@@ -220,7 +220,7 @@ def algorithm2_random():
     ensemble_nets.add(curr)
     while len(ensemble) < len(network_names) :
         # Take subset of points poorly predicted poor_subset
-        poor_subset_loader = get_poor_subset(ensemble, trainloader)
+        poor_subset_loader = get_poor_subset(ensemble, trainloader, batch_size)
         val_losses = []
         models = []
         inds= []
