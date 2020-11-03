@@ -123,10 +123,12 @@ def get_ensemble_preds(ensemble, dataloader):
         100 * correct / total))
     return (correct/total)
 
-def get_poor_subset(ensemble, trainloader,batch_size):
+def get_poor_subset(ensemble, trainloader, train, batch_size):
     poor_subsets = []
+    indices = []
     with torch.no_grad():
-        for data in trainloader:  # per batch
+        for i,data in enumerate(trainloader):  # per batch_size
+            inds = torch.arange(i*batch_size,i*batch_size+1)
             predicteds = []
             images, labels = data[0].cuda(), data[1].cuda()
             for model in ensemble:
@@ -138,11 +140,15 @@ def get_poor_subset(ensemble, trainloader,batch_size):
             print(len(ensemble),predicteds.shape)
             mode_vals, predicted_modes = torch.mode(predicteds)
             print(predicted_modes.shape)
-            poor_subset = images[predicted_modes!=labels]
+            poor_subsets.append(images[predicted_modes!=labels])
+            indices.extend(inds[predicted_modes!=labels])
             # print(poor_subset.shape)
-            poor_subsets.append(poor_subset)
+            # poor_subsets.append(poor_subset)
         print(len(poor_subsets))
-    poor_loader = torch.utils.data.DataLoader(poor_subsets, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=0)
+    subset = torch.utils.data.Subset(train, indices)
+    # check_distribution(dataset,top_help_list)
+    poor_loader = torch.utils.data.DataLoader(subset, shuffle=True, batch_size=batch_size, num_workers=1)
+    # poor_loader = torch.utils.data.DataLoader(poor_subsets, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
     return poor_loader
 
 def get_mnist(batch_size):
@@ -154,9 +160,9 @@ def get_mnist(batch_size):
     train_size = round(0.75*len(dataset))
     val_size = len(dataset) - train_size 
     train, val = torch.utils.data.random_split(dataset, [train_size, val_size]) #generator=torch.Generator().manual_seed(42))
-    trainloader = torch.utils.data.DataLoader(train, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=0)
-    valloader = torch.utils.data.DataLoader(val, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=0)
-    return trainloader,valloader,testloader
+    trainloader = torch.utils.data.DataLoader(train, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
+    valloader = torch.utils.data.DataLoader(val, shuffle=False, batch_size=batch_size, pin_memory=True, num_workers=1)
+    return train, val, trainloader,valloader,testloader
 
 # what is the baseline? 
 # num epochs?
@@ -179,7 +185,7 @@ def algorithm2_loop():
     network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34","mlp"] # use mlp just for mnist
     batch_size = 128
     num_epochs = 10
-    trainloader,valloader,testloader = get_mnist(batch_size)
+    train, val, trainloader,valloader,testloader = get_mnist(batch_size)
     ensemble = {}
     curr =  network_names[0]  #huh?
     model, val_loss = train_and_eval_model(curr, dataset, trainloader, valloader, batch_size, num_epochs) # don't use full dataset
@@ -188,7 +194,7 @@ def algorithm2_loop():
     ensemble_nets.add(curr)
     while len(ensemble) < len(network_names) :
         # Take subset of points poorly predicted poor_subset
-        poor_subset_loader = get_poor_subset(ensemble, trainloader, batch_size)
+        poor_subset_loader = get_poor_subset(ensemble, trainloader, train, batch_size)
         val_losses = []
         models = []
         inds= []
@@ -217,7 +223,7 @@ def algorithm2_random():
     network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34","mlp"] # use mlp just for mnist
     batch_size = 128
     num_epochs = 10
-    trainloader,valloader,testloader = get_mnist(batch_size)
+    train, val, trainloader,valloader,testloader = get_mnist(batch_size)
     ensemble = {}
     curr =  network_names[0]  #huh?
     model, val_loss = train_and_eval_model(curr, dataset, trainloader, valloader, batch_size, num_epochs) # don't use full dataset
@@ -226,7 +232,7 @@ def algorithm2_random():
     ensemble_nets.add(curr)
     while len(ensemble) < len(network_names) :
         # Take subset of points poorly predicted poor_subset
-        poor_subset_loader = get_poor_subset(ensemble, trainloader, batch_size)
+        poor_subset_loader = get_poor_subset(ensemble, trainloader, train, batch_size)
         val_losses = []
         models = []
         inds= []
