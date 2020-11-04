@@ -104,10 +104,9 @@ def get_ensemble_preds(ensemble, dataloader):
             for model in ensemble:
                 outputs = model(images)
                 _, predicted = torch.max(outputs.data, 1)  # get median predicted
-                print(predicted.shape)
                 predicteds.append(predicted)
             predicteds = torch.stack(predicteds, dim = 1)
-            print(predicteds.shape)
+            print("shape of stacked predicteds of models in ensemble",predicteds.shape)
             mode_vals, predicted_modes = torch.mode(predicteds) # fix
             total += labels.size(0)
             correct += (predicted_modes == labels).sum().item()
@@ -134,7 +133,6 @@ def get_poor_subset(ensemble, trainloader, train, batch_size):
             for model in ensemble:
                 outputs = model(images)
                 _, predicted = torch.max(outputs.data, 1)  # get median predicted
-                print(predicted.shape)
                 predicteds.append(predicted)
             predicteds = torch.stack(predicteds, dim = 1)
             print(len(ensemble),predicteds.shape)
@@ -242,7 +240,7 @@ def algorithm2_random():
         val_losses.append(val_loss)   #do we want to pick based on val_loss?
         ensemble[model] = val_loss
         ensemble_nets.add(network_name)
-    test_acc= get_ensemble_preds(ensemble, testloader)
+    test_acc = get_ensemble_preds(ensemble, testloader)
     print(len(ensemble))
     print(test_acc)
 
