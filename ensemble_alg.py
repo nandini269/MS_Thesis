@@ -91,7 +91,7 @@ def train_and_eval_model(network_name, dataset, trainloader, valloader, batch_si
     # print('Testing ' + network_name)
     # test(testloader, net)
 
-def get_ensemble_preds(ensemble, dataloader):
+def get_ensemble_preds(ensemble, dataloader, test_or_val):
     # poor_subsets = []
     correct = 0
     total = 0
@@ -120,8 +120,7 @@ def get_ensemble_preds(ensemble, dataloader):
             #     label = labels[i]
             #     class_correct[label] += c[i].item()
             #     class_total[label] += 1
-    print('Accuracy of the network on the 10000 test images: %d %%' % (
-        100 * correct / total))
+    print("Accuracy of the ensemble on the {} test images: {}".format(test_or_val,100*correct/total))
     print("correct:", correct)
     print("total:",total)
     return (correct/total)
@@ -215,7 +214,7 @@ def algorithm2_loop():
         ensemble[best_model] = val_loss
         best_i = inds[best_ind]
         ensemble_nets.add(network_names[best_i])
-    test_acc= get_ensemble_preds(ensemble, testloader)
+    test_acc= get_ensemble_preds(ensemble, testloader, "test")
     print(len(ensemble))
     print(test_acc)
     #test
@@ -250,7 +249,8 @@ def algorithm2_random():
         val_losses.append(val_loss)   #do we want to pick based on val_loss?
         ensemble[model] = val_loss
         ensemble_nets.add(network_name)
-    test_acc = get_ensemble_preds(ensemble, testloader)
+        val_acc = get_ensemble_preds(ensemble, valloader,"validation")
+    test_acc = get_ensemble_preds(ensemble, testloader,"test")
     print(len(ensemble))
     print(test_acc)
 
