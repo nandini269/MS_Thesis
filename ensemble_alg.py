@@ -230,8 +230,11 @@ def algorithm2_random():
     num_epochs = 5
     train, val, trainloader,valloader,testloader = get_mnist(batch_size)
     ensemble = {}
-    curr =  network_names[0]  #huh?
-    model, val_loss = train_and_eval_model(curr, dataset, trainloader, valloader, batch_size, num_epochs) # don't use full dataset
+    network_name = np.random.choice(network_names)
+    subsample_size = round(0.2*len(train))
+    train_sub, _ = torch.utils.data.random_split(train, [subsample,len(train)-subsample_size] )
+    tr_sub_ld = torch.utils.data.DataLoader(train_sub, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
+    model, val_loss = train_and_eval_model(curr, dataset, tr_sub_ld, valloader, batch_size, num_epochs) # don't use full dataset
     ensemble[model] = val_loss
     ensemble_nets = set()
     ensemble_nets.add(curr)
