@@ -128,7 +128,7 @@ def get_poor_subset(ensemble, trainloader, train, batch_size):
     indices = []
     with torch.no_grad():
         for i,data in enumerate(trainloader):  # per batch_size
-            inds = torch.arange(i*batch_size,i*batch_size+1)
+            inds = torch.arange(i*batch_size,i*batch_size+batch_size)
             predicteds = []
             images, labels = data[0].cuda(), data[1].cuda()
             for model in ensemble:
