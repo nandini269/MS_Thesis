@@ -232,7 +232,7 @@ def algorithm2_random():
     ensemble = {}
     network_name = np.random.choice(network_names)
     subsample_size = round(0.2*len(train))
-    train_sub, _ = torch.utils.data.random_split(train, [subsample,len(train)-subsample_size] )
+    train_sub, _ = torch.utils.data.random_split(train,[subsample_size,len(train)-subsample_size])
     tr_sub_ld = torch.utils.data.DataLoader(train_sub, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
     model, val_loss = train_and_eval_model(curr, dataset, tr_sub_ld, valloader, batch_size, num_epochs) # don't use full dataset
     ensemble[model] = val_loss
