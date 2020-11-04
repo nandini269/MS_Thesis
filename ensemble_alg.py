@@ -140,7 +140,7 @@ def get_poor_subset(ensemble, trainloader, train, batch_size):
             print(len(ensemble),predicteds.shape)
             mode_vals, predicted_modes = torch.mode(predicteds)
             print(predicted_modes.shape)
-            poor_subsets.append(images[predicted_modes!=labels])
+            poor_subsets.extend(images[predicted_modes!=labels])
             indices.extend(inds[predicted_modes!=labels])
             # print(poor_subset.shape)
             # poor_subsets.append(poor_subset)
@@ -235,19 +235,16 @@ def algorithm2_random():
         poor_subset_loader = get_poor_subset(ensemble, trainloader, train, batch_size)
         val_losses = []
         models = []
-        inds= []
         network_name = np.random.choice(network_names)
         # evaluate or train on subset and choose best
         model, val_loss = train_and_eval_model(network_name, dataset, poor_subset_loader, valloader, batch_size, num_epochs)
         models.append(model)
         val_losses.append(val_loss)   #do we want to pick based on val_loss?
-        inds.append(i)
-
         best_ind = np.argmin(val_loss)
         best_model = models[best_ind]
         ensemble[best_model] = val_loss
         best_i = inds[best_ind]
-        ensemble_nets.add(network_names[best_i])
+        ensemble_nets.add(network_name)
     test_acc= get_ensemble_preds(ensemble, testloader)
     print(len(ensemble))
     print(test_acc)
