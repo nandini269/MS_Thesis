@@ -110,6 +110,8 @@ def get_ensemble_preds(ensemble, dataloader):
             total += labels.size(0)
             correct += (predicted_modes == labels).sum().item()
         print("shape of stacked predicteds of models in ensemble",predicteds.shape)
+        print(predicted_modes)
+        print(labels)
             # _, pred = torch.max(outputs, 1)
             # print(outputs)
             # print(outputs.data)
