@@ -205,7 +205,7 @@ def algorithm2_loop():
                 models.append(model)
                 val_losses.append(val_loss)   #do we want to pick based on val_loss?
                 inds.append(i)
-        best_ind = np.argmin(val_loss)
+        best_ind = np.argmin(val_losses)
         best_model = models[best_ind]
         ensemble[best_model] = val_loss
         best_i = inds[best_ind]
@@ -240,10 +240,7 @@ def algorithm2_random():
         model, val_loss = train_and_eval_model(network_name, dataset, poor_subset_loader, valloader, batch_size, num_epochs)
         models.append(model)
         val_losses.append(val_loss)   #do we want to pick based on val_loss?
-        best_ind = np.argmin(val_loss)
-        best_model = models[best_ind]
-        ensemble[best_model] = val_loss
-        best_i = inds[best_ind]
+        ensemble[model] = val_loss
         ensemble_nets.add(network_name)
     test_acc= get_ensemble_preds(ensemble, testloader)
     print(len(ensemble))
