@@ -106,7 +106,7 @@ def get_ensemble_preds(ensemble, dataloader):
                 _, predicted = torch.max(outputs.data, 1)  # get median predicted
                 predicteds.append(predicted)
             predicteds = torch.stack(predicteds, dim = 1)
-            mode_vals, predicted_modes = torch.mode(predicteds) # fix
+            predicted_modes, mode_inds = torch.mode(predicteds) # fix
             total += labels.size(0)
             correct += (predicted_modes == labels).sum().item()
         print("shape of stacked predicteds of models in ensemble",predicteds.shape)
@@ -140,7 +140,7 @@ def get_poor_subset(ensemble, trainloader, train, batch_size):
                 predicteds.append(predicted)
             predicteds = torch.stack(predicteds, dim = 1)
             # print(len(ensemble),predicteds.shape)
-            mode_vals, predicted_modes = torch.mode(predicteds)
+            predicted_modes, mode_inds = torch.mode(predicteds)
             print("predicted modes:",predicted_modes)
             print("true labels:",labels)
             print("predicted modes shape",predicted_modes.shape )
