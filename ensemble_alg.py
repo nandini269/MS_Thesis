@@ -44,7 +44,7 @@ def test(testloader, net):
                 label = labels[i]
                 class_correct[label] += c[i].item()
                 class_total[label] += 1
-    print('Accuracy of the network on the 10000 test images: %d %%' % (
+    print('Accuracy of the network on the validation set: %d %%' % (
         100 * correct / total))
     return (correct/total)
     # classes = ('plane', 'car', 'bird', 'cat',
@@ -120,6 +120,8 @@ def get_ensemble_preds(ensemble, dataloader):
             #     class_total[label] += 1
     print('Accuracy of the network on the 10000 test images: %d %%' % (
         100 * correct / total))
+    print("correct:", correct)
+    print("total:",total)
     return (correct/total)
 
 def get_poor_subset(ensemble, trainloader, train, batch_size):
