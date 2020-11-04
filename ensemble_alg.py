@@ -141,9 +141,10 @@ def get_poor_subset(ensemble, trainloader, train, batch_size):
             predicteds = torch.stack(predicteds, dim = 1)
             # print(len(ensemble),predicteds.shape)
             predicted_modes, mode_inds = torch.mode(predicteds)
-            print("predicted modes:",predicted_modes)
-            print("true labels:",labels)
-            print("predicted modes shape",predicted_modes.shape )
+            if i==3:
+                print("predicted modes:",predicted_modes)
+                print("true labels:",labels)
+                print("predicted modes shape",predicted_modes.shape )
             poor_subsets.extend(images[predicted_modes!=labels])
             indices.extend(inds[predicted_modes!=labels])
             # print(poor_subset.shape)
