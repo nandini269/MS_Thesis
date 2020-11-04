@@ -141,10 +141,10 @@ def get_poor_subset(ensemble, trainloader, train, batch_size):
             predicteds = torch.stack(predicteds, dim = 1)
             # print(len(ensemble),predicteds.shape)
             predicted_modes, mode_inds = torch.mode(predicteds)
-            if i==3:
-                print("predicted modes:",predicted_modes)
-                print("true labels:",labels)
-                print("predicted modes shape",predicted_modes.shape )
+            # if i==3:
+            #     print("predicted modes:",predicted_modes)
+            #     print("true labels:",labels)
+            #     print("predicted modes shape",predicted_modes.shape )
             poor_subsets.extend(images[predicted_modes!=labels])
             indices.extend(inds[predicted_modes!=labels])
             # print(poor_subset.shape)
@@ -227,7 +227,7 @@ def algorithm2_random():
     dataset = "mnist"          
     network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34","mlp"] # use mlp just for mnist
     batch_size = 128
-    num_epochs = 10
+    num_epochs = 5
     train, val, trainloader,valloader,testloader = get_mnist(batch_size)
     ensemble = {}
     curr =  network_names[0]  #huh?
