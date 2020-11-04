@@ -110,8 +110,8 @@ def get_ensemble_preds(ensemble, dataloader, test_or_val):
             total += labels.size(0)
             correct += (predicted_modes == labels).sum().item()
         print("shape of stacked predicteds of models in ensemble",predicteds.shape)
-        print(predicted_modes)
-        print(labels)
+        # print(predicted_modes)
+        # print(labels)
             # _, pred = torch.max(outputs, 1)
             # print(outputs)
             # print(outputs.data)
@@ -120,7 +120,7 @@ def get_ensemble_preds(ensemble, dataloader, test_or_val):
             #     label = labels[i]
             #     class_correct[label] += c[i].item()
             #     class_total[label] += 1
-    print("Accuracy of the ensemble on the {} test images: {}".format(test_or_val,100*correct/total))
+    print("Accuracy of the ensemble on the {} images: {}".format(test_or_val,100*correct/total))
     print("correct:", correct)
     print("total:",total)
     return (correct/total)
@@ -230,7 +230,7 @@ def algorithm2_random():
     train, val, trainloader,valloader,testloader = get_mnist(batch_size)
     ensemble = {}
     network_name = np.random.choice(network_names)
-    subsample_size = round(0.2*len(train))
+    subsample_size = round(0.1*len(train))
     train_sub, _ = torch.utils.data.random_split(train,[subsample_size,len(train)-subsample_size])
     tr_sub_ld = torch.utils.data.DataLoader(train_sub, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
     model, val_loss = train_and_eval_model(network_name, dataset, tr_sub_ld, valloader, batch_size, num_epochs) # don't use full dataset
