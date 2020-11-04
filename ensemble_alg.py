@@ -237,7 +237,7 @@ def algorithm2_random():
     model, val_loss = train_and_eval_model(network_name, dataset, tr_sub_ld, valloader, batch_size, num_epochs) # don't use full dataset
     ensemble[model] = val_loss
     ensemble_nets = set()
-    ensemble_nets.add(curr)
+    ensemble_nets.add(network_name)
     while len(ensemble) < len(network_names) :
         # Take subset of points poorly predicted poor_subset
         poor_subset_loader = get_poor_subset(ensemble, trainloader, train, batch_size)
