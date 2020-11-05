@@ -236,9 +236,9 @@ def algorithm2_loop():
     #test
 
 def get_dataset(batch_size, dname):
-    if dname = "mnist":
+    if dname == "mnist":
         return get_mnist(batch_size)
-    elif dname = "cifar10":
+    elif dname == "cifar10":
         return get_cifar10(batch_size)
     # Current model: look at gradient error w.r.t the parameters = residual
     
