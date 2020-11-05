@@ -10,7 +10,7 @@ import torch.nn.init as init
 def network(network_name, dataset):
     if dataset == 'mnist':
         return get_network(network_name, 10, 1)
-    elif dataset == 'cifar_10':
+    elif dataset == 'cifar_10' or dataset=='cifar10':
         if network_name == 'mlp':
             raise Exception('MLP is currently only designed for grayscale images')
         return get_network(network_name, 10, 3)
