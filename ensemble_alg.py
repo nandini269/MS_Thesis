@@ -109,7 +109,7 @@ def get_ensemble_preds(ensemble, dataloader, test_or_val):
             predicted_modes, mode_inds = torch.mode(predicteds) # fix
             total += labels.size(0)
             correct += (predicted_modes == labels).sum().item()
-        print("shape of stacked predicteds of models in ensemble",predicteds.shape)
+        # print("shape of stacked predicteds of models in ensemble",predicteds.shape)
         # print(predicted_modes)
         # print(labels)
             # _, pred = torch.max(outputs, 1)
@@ -168,14 +168,30 @@ def get_mnist(batch_size):
     valloader = torch.utils.data.DataLoader(val, shuffle=False, batch_size=batch_size, pin_memory=True, num_workers=1)
     return train, val, trainloader,valloader,testloader
 
+def get_cifar10(batch_size):
+    transform_train = transforms.Compose(
+        [transforms.RandomCrop(32, padding=4), transforms.RandomHorizontalFlip(), transforms.ToTensor(),
+         transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)), ])
+    transform_test = transforms.Compose([transforms.ToTensor(), transforms.Normalize(
+        (0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)), ])
+    dataset = datasets.CIFAR10(root=data_loc, train=True, download=True, transform=transform_train)
+    # train_loader = torch.utils.data.DataLoader(dataset, shuffle=False, batch_size=batch_size, num_workers=1)
+    test_dataset = datasets.CIFAR10(root=data_loc, train=False, transform=transform_test)
+    test_loader = torch.utils.data.DataLoader(test_dataset, shuffle=False, batch_size=batch_size)
+    train_size = round(0.75*len(dataset))
+    val_size = len(dataset) - train_size 
+    train, val = torch.utils.data.random_split(dataset, [train_size, val_size])
+    trainloader = torch.utils.data.DataLoader(train, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
+    valloader = torch.utils.data.DataLoader(val, shuffle=False, batch_size=batch_size, pin_memory=True, num_workers=1)
+    return train, val, trainloader,valloader,testloader
 # what is the baseline? 
-# num epochs?
+# num epochs? 5 for now
 # best model trained on entire dataset 
 # pick random model to ensemble
-# pick random subsample
+# pick random subsample ..
 # check time
 # don't start with the entire dataset
-# parameters- number of epochs, starting ratio, (0.1) subsample ratio, 
+# parameters- number of epochs, starting ratio, (0.1) subsample ratio or cap(1/num_models * len(data)), 
 # parameters - weight of each model decaying learning rate, starting and total num models in ensemble
 # starting with multiple parts of the dataset
 # train on subsample, predict on entire training set
@@ -219,21 +235,26 @@ def algorithm2_loop():
     print(test_acc)
     #test
 
+def get_dataset(batch_size, dname):
+    if dname = "mnist":
+        return get_mnist(batch_size)
+    elif dname = "cifar10":
+        return get_cifar10(batch_size)
     # Current model: look at gradient error w.r.t the parameters = residual
     
     # Pick best model for that subset
-def algorithm2_random():    
-    dataset = "mnist"          
-    network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34","mlp"] # use mlp just for mnist
+def algorithm2_random(dname):    
+    # dataset = "mnist"          
+    network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34"]#"mlp"] # use mlp just for mnist
     batch_size = 128
-    num_epochs = 5
-    train, val, trainloader,valloader,testloader = get_mnist(batch_size)
+    num_epochs = 10
+    train, val, trainloader,valloader,testloader = get_dataset(batch_size, dname)#get_mnist(batch_size)
     ensemble = {}
     network_name = np.random.choice(network_names)
     subsample_size = round(0.1*len(train))
     train_sub, _ = torch.utils.data.random_split(train,[subsample_size,len(train)-subsample_size])
     tr_sub_ld = torch.utils.data.DataLoader(train_sub, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
-    model, val_loss = train_and_eval_model(network_name, dataset, tr_sub_ld, valloader, batch_size, num_epochs) # don't use full dataset
+    model, val_loss = train_and_eval_model(network_name, dname, tr_sub_ld, valloader, batch_size, num_epochs) # don't use full dataset
     ensemble[model] = val_loss
     ensemble_nets = set()
     ensemble_nets.add(network_name)
@@ -244,7 +265,7 @@ def algorithm2_random():
         models = []
         network_name = np.random.choice(network_names)
         # evaluate or train on subset and choose best
-        model, val_loss = train_and_eval_model(network_name, dataset, poor_subset_loader, valloader, batch_size, num_epochs)
+        model, val_loss = train_and_eval_model(network_name, dname, poor_subset_loader, valloader, batch_size, num_epochs)
         models.append(model)
         val_losses.append(val_loss)   #do we want to pick based on val_loss?
         ensemble[model] = val_loss
@@ -255,4 +276,4 @@ def algorithm2_random():
     print(test_acc)
 
 if __name__ == '__main__':
-    algorithm2_random()
+    algorithm2_random("cifar10")
