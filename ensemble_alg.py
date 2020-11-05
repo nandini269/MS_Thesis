@@ -102,6 +102,7 @@ def get_ensemble_preds(ensemble, dataloader, test_or_val):
             predicteds = []
             images, labels = data[0].cuda(), data[1].cuda()
             for model in ensemble:
+                val_loss = ensemble[model]
                 outputs = model(images)
                 _, predicted = torch.max(outputs.data, 1)  # get median predicted
                 predicteds.append(predicted)
@@ -247,7 +248,7 @@ def algorithm2_random(dname):
     # dataset = "mnist"          
     network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34"]#"mlp"] # use mlp just for mnist
     batch_size = 128
-    num_epochs = 10
+    num_epochs = 20
     train, val, trainloader,valloader,testloader = get_dataset(batch_size, dname)#get_mnist(batch_size)
     ensemble = {}
     network_name = np.random.choice(network_names)
