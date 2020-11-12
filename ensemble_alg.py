@@ -201,8 +201,8 @@ def get_cifar10(batch_size,filter):
 
     testloader = torch.utils.data.DataLoader(test_dataset, shuffle=False, batch_size=batch_size)
     train_size = round(0.75*len(dataset))
-    val_size = len(new_dataset) - train_size 
-    train, val = torch.utils.data.random_split(new_dataset, [train_size, val_size])
+    val_size = len(dataset) - train_size 
+    train, val = torch.utils.data.random_split(dataset, [train_size, val_size])
     trainloader = torch.utils.data.DataLoader(train, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
     valloader = torch.utils.data.DataLoader(val, shuffle=False, batch_size=batch_size, pin_memory=True, num_workers=1)
     return train, val, trainloader,valloader,testloader
