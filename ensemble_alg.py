@@ -200,7 +200,7 @@ def get_cifar10(batch_size,filter):
         print("new lengths of datasets",len(dataset),len(test_dataset))
 
     testloader = torch.utils.data.DataLoader(test_dataset, shuffle=False, batch_size=batch_size)
-    train_size = round(0.75*len(new_dataset))
+    train_size = round(0.75*len(dataset))
     val_size = len(new_dataset) - train_size 
     train, val = torch.utils.data.random_split(new_dataset, [train_size, val_size])
     trainloader = torch.utils.data.DataLoader(train, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
@@ -272,16 +272,16 @@ def algorithm2_random(dname):    # add a cap
     batch_size = 128
     num_epochs = 20
     train, val, trainloader,valloader,testloader = get_dataset(batch_size, dname)#get_mnist(batch_size)
+    cap_size = round(len(train)/len(network_names))
     ensemble = {}
     network_name = np.random.choice(network_names)
-    subsample_size = round(0.1*len(train))
+    subsample_size = cap_size #round(0.1*len(train))
     train_sub, _ = torch.utils.data.random_split(train,[subsample_size,len(train)-subsample_size])
     tr_sub_ld = torch.utils.data.DataLoader(train_sub, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
     model, val_loss = train_and_eval_model(network_name, dname, tr_sub_ld, valloader, batch_size, num_epochs) # don't use full dataset
     ensemble[model] = val_loss
     ensemble_nets = set()
     ensemble_nets.add(network_name)
-    cap_size = round(len(train)/len(network_names))
     while len(ensemble) < len(network_names) :
         # Take subset of points poorly predicted poor_subset
         poor_subset_loader = get_poor_subset(ensemble, trainloader, train, batch_size, cap_size)
