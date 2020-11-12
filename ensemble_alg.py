@@ -177,7 +177,7 @@ def filter_cifar10(dataset, batch_size):
         data,label = ds
         if label == 0 or label==1:
             new_dataset_inds.append(i)
-    subset = torch.utils.data.Subset(dataset, new_dataset_indices)
+    subset = torch.utils.data.Subset(dataset, new_dataset_inds)
     # check_distribution(dataset,top_help_list)
     # subset_loader = torch.utils.data.DataLoader(subset, shuffle=True, batch_size=batch_size, num_workers=1)
     return subset
