@@ -126,7 +126,7 @@ def get_ensemble_preds(ensemble, dataloader, test_or_val):
     print("total:",total)
     return (correct/total)
 
-def get_poor_subset(ensemble, trainloader, train, batch_size):
+def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
     poor_subsets = []
     indices = []
     with torch.no_grad():
@@ -150,6 +150,8 @@ def get_poor_subset(ensemble, trainloader, train, batch_size):
             # print(poor_subset.shape)
             # poor_subsets.append(poor_subset)
         print("num images in poor subset: ",len(poor_subsets))
+    if len(indices)>cap_size:
+        indices = indices[:cap_size]
     subset = torch.utils.data.Subset(train, indices)
     # check_distribution(dataset,top_help_list)
     poor_loader = torch.utils.data.DataLoader(subset, shuffle=True, batch_size=batch_size, num_workers=1)
@@ -169,7 +171,18 @@ def get_mnist(batch_size):
     valloader = torch.utils.data.DataLoader(val, shuffle=False, batch_size=batch_size, pin_memory=True, num_workers=1)
     return train, val, trainloader,valloader,testloader
 
-def get_cifar10(batch_size):
+def filter_cifar10(dataset, batch_size):
+    new_dataset_inds = []
+    for i,ds in enumerate(dataset):
+        data,label = ds
+        if label == 0 or label==1:
+            new_dataset_inds.append(i)
+    subset = torch.utils.data.Subset(dataset, new_dataset_indices)
+    # check_distribution(dataset,top_help_list)
+    # subset_loader = torch.utils.data.DataLoader(subset, shuffle=True, batch_size=batch_size, num_workers=1)
+    return subset
+
+def get_cifar10(batch_size,filter):
     transform_train = transforms.Compose(
         [transforms.RandomCrop(32, padding=4), transforms.RandomHorizontalFlip(), transforms.ToTensor(),
          transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)), ])
@@ -177,11 +190,16 @@ def get_cifar10(batch_size):
         (0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)), ])
     dataset = datasets.CIFAR10(root=data_loc, train=True, download=True, transform=transform_train)
     # train_loader = torch.utils.data.DataLoader(dataset, shuffle=False, batch_size=batch_size, num_workers=1)
+    
     test_dataset = datasets.CIFAR10(root=data_loc, train=False, transform=transform_test)
+    if filter:
+        dataset = filter_cifar10(dataset, batch_size)
+        test_dataset = filter_cifar10(test_dataset, batch_size)
+
     testloader = torch.utils.data.DataLoader(test_dataset, shuffle=False, batch_size=batch_size)
-    train_size = round(0.75*len(dataset))
-    val_size = len(dataset) - train_size 
-    train, val = torch.utils.data.random_split(dataset, [train_size, val_size])
+    train_size = round(0.75*len(new_dataset))
+    val_size = len(new_dataset) - train_size 
+    train, val = torch.utils.data.random_split(new_dataset, [train_size, val_size])
     trainloader = torch.utils.data.DataLoader(train, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
     valloader = torch.utils.data.DataLoader(val, shuffle=False, batch_size=batch_size, pin_memory=True, num_workers=1)
     return train, val, trainloader,valloader,testloader
@@ -213,9 +231,10 @@ def algorithm2_loop():
     ensemble[model] = val_loss
     ensemble_nets = set()
     ensemble_nets.add(curr)
+    cap_size = round(len(train)/len(network_names))
     while len(ensemble) < len(network_names) :
         # Take subset of points poorly predicted poor_subset
-        poor_subset_loader = get_poor_subset(ensemble, trainloader, train, batch_size)
+        poor_subset_loader = get_poor_subset(ensemble, trainloader, train, batch_size, cap_size)
         val_losses = []
         models = []
         inds= []
@@ -240,11 +259,11 @@ def get_dataset(batch_size, dname):
     if dname == "mnist":
         return get_mnist(batch_size)
     elif dname == "cifar10":
-        return get_cifar10(batch_size)
+        return get_cifar10(batch_size, True)
     # Current model: look at gradient error w.r.t the parameters = residual
     
     # Pick best model for that subset
-def algorithm2_random(dname):    
+def algorithm2_random(dname):    # add a cap
     # dataset = "mnist"          
     network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34"]#"mlp"] # use mlp just for mnist
     batch_size = 128
@@ -259,9 +278,10 @@ def algorithm2_random(dname):
     ensemble[model] = val_loss
     ensemble_nets = set()
     ensemble_nets.add(network_name)
+    cap_size = round(len(train)/len(network_names))
     while len(ensemble) < len(network_names) :
         # Take subset of points poorly predicted poor_subset
-        poor_subset_loader = get_poor_subset(ensemble, trainloader, train, batch_size)
+        poor_subset_loader = get_poor_subset(ensemble, trainloader, train, batch_size, cap_size)
         val_losses = []
         models = []
         network_name = np.random.choice(network_names)
