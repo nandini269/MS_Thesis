@@ -122,8 +122,8 @@ def get_ensemble_preds(ensemble, dataloader, test_or_val):
             #     class_correct[label] += c[i].item()
             #     class_total[label] += 1
     print("Accuracy of the ensemble on the {} images: {}".format(test_or_val,100*correct/total))
-    print("correct:", correct)
-    print("total:",total)
+    # print("correct:", correct)
+    # print("total:",total)
     return (correct/total)
 
 def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
@@ -192,9 +192,12 @@ def get_cifar10(batch_size,filter):
     # train_loader = torch.utils.data.DataLoader(dataset, shuffle=False, batch_size=batch_size, num_workers=1)
     
     test_dataset = datasets.CIFAR10(root=data_loc, train=False, transform=transform_test)
+    print("original lengths of dataset",len(dataset),len(test_dataset))
     if filter:
+        print("filter is on")
         dataset = filter_cifar10(dataset, batch_size)
         test_dataset = filter_cifar10(test_dataset, batch_size)
+        print("new lengths of datasets",len(dataset),len(test_dataset))
 
     testloader = torch.utils.data.DataLoader(test_dataset, shuffle=False, batch_size=batch_size)
     train_size = round(0.75*len(new_dataset))
