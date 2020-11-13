@@ -182,7 +182,7 @@ def filter_cifar10(dataset, batch_size):
     # subset_loader = torch.utils.data.DataLoader(subset, shuffle=True, batch_size=batch_size, num_workers=1)
     return subset
 
-def get_cifar10(batch_size,filter):
+def get_cifar10(batch_size,filter=True):
     transform_train = transforms.Compose(
         [transforms.RandomCrop(32, padding=4), transforms.RandomHorizontalFlip(), transforms.ToTensor(),
          transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)), ])
@@ -258,20 +258,20 @@ def algorithm2_loop():
     print(test_acc)
     #test
 
-def get_dataset(batch_size, dname):
+def get_dataset(batch_size, dname, filtered):
     if dname == "mnist":
         return get_mnist(batch_size)
     elif dname == "cifar10":
-        return get_cifar10(batch_size, True)
+        return get_cifar10(batch_size, filtered)
     # Current model: look at gradient error w.r.t the parameters = residual
     
     # Pick best model for that subset
-def algorithm2_random(dname):    # add a cap
+def algorithm2_random(dname,filtered=True):    # add a cap
     # dataset = "mnist"          
     network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34"]#"mlp"] # use mlp just for mnist
     batch_size = 128
     num_epochs = 5
-    train, val, trainloader,valloader,testloader = get_dataset(batch_size, dname)#get_mnist(batch_size)
+    train, val, trainloader,valloader,testloader = get_dataset(batch_size, dname, filtered)#get_mnist(batch_size)
     cap_size = round(len(train)/len(network_names))
     ensemble = {}
     network_name = np.random.choice(network_names)
@@ -314,5 +314,5 @@ def baseline1(dname):
     print("test loss:", test_loss)
 
 if __name__ == '__main__':
-    algorithm2_random("cifar10")
+    algorithm2_random("cifar10", False)
     baseline1("cifar10")
