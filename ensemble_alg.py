@@ -270,7 +270,7 @@ def algorithm2_random(dname):    # add a cap
     # dataset = "mnist"          
     network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34"]#"mlp"] # use mlp just for mnist
     batch_size = 128
-    num_epochs = 10
+    num_epochs = 5
     train, val, trainloader,valloader,testloader = get_dataset(batch_size, dname)#get_mnist(batch_size)
     cap_size = round(len(train)/len(network_names))
     ensemble = {}
@@ -303,11 +303,11 @@ def baseline1(dname):
     print("Baseline 1 results")
     network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34"]#"mlp"] # use mlp just for mnist
     batch_size = 128
-    num_epochs = 30
+    num_epochs = 25
     train, val, trainloader,valloader,testloader = get_dataset(batch_size, dname)#get_mnist(batch_size)
     # cap_size = round(len(train)/len(network_names))
     # ensemble = {}
-    network_name = np.random.choice(network_names)
+    network_name = "lenet"#np.random.choice(network_names)
     model, val_loss = train_and_eval_model(network_name, dname, trainloader, valloader, batch_size, num_epochs)
     test_loss = test(testloader, model)
     print("val loss:", val_loss)
