@@ -192,12 +192,12 @@ def get_cifar10(batch_size,filter=True):
     # train_loader = torch.utils.data.DataLoader(dataset, shuffle=False, batch_size=batch_size, num_workers=1)
     
     test_dataset = datasets.CIFAR10(root=data_loc, train=False, transform=transform_test)
-    print("original lengths of dataset",len(dataset),len(test_dataset))
+    # print("original lengths of dataset",len(dataset),len(test_dataset))
     if filter:
         print("filter is on")
         dataset = filter_cifar10(dataset, batch_size)
         test_dataset = filter_cifar10(test_dataset, batch_size)
-        print("new lengths of datasets",len(dataset),len(test_dataset))
+        # print("new lengths of datasets",len(dataset),len(test_dataset))
 
     testloader = torch.utils.data.DataLoader(test_dataset, shuffle=False, batch_size=batch_size)
     train_size = round(0.75*len(dataset))
