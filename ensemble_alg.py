@@ -267,11 +267,11 @@ def get_dataset(batch_size, dname, filtered):
     
     # Pick best model for that subset
 def algorithm2_random(dname,network_names, batch_size, filtered=True):    # add a cap         
-    num_epochs = 10
+    num_epochs = 15
     train, val, trainloader,valloader,testloader = get_dataset(batch_size, dname, filtered)#get_mnist(batch_size)
     cap_size = round(len(train)/len(network_names))
     ensemble = {}
-    network_name = np.random.choice(network_names)
+    network_name = np.random.choice(network_names, replace=False)
     subsample_size = cap_size #round(0.1*len(train))
     train_sub, _ = torch.utils.data.random_split(train,[subsample_size,len(train)-subsample_size])
     tr_sub_ld = torch.utils.data.DataLoader(train_sub, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
@@ -302,7 +302,7 @@ def algorithm2_random(dname,network_names, batch_size, filtered=True):    # add 
 def baseline1(dname, network_names, batch_size, filtered):
     print("Baseline 1 results")
     # network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34"]#"mlp"] # use mlp just for mnist
-    num_epochs = 40
+    num_epochs = 45
     train, val, trainloader,valloader,testloader = get_dataset(batch_size, dname, filtered)#get_mnist(batch_size)
     # cap_size = round(len(train)/len(network_names))
     # ensemble = {}
@@ -315,7 +315,7 @@ def baseline1(dname, network_names, batch_size, filtered):
 if __name__ == '__main__':
     filtered = False
     batch_size = 128
-    network_names = ["vgg11", "vgg13","resnet18", "resnet34"]
+    network_names = ["vgg11","resnet18", "resnet34"]
     # network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34"]#"mlp"] # use mlp just for mnist
     algorithm2_random("cifar10", network_names, batch_size, filtered)
     baseline1("cifar10", network_names, batch_size, filtered)
