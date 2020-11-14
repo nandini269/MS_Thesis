@@ -271,25 +271,26 @@ def algorithm2_random(dname,network_names, batch_size, filtered=True):    # add 
     train, val, trainloader,valloader,testloader = get_dataset(batch_size, dname, filtered)#get_mnist(batch_size)
     cap_size = round(len(train)/len(network_names))
     ensemble = {}
-    network_name = np.random.choice(network_names, replace=False)
+    np.random.shuffle(network_names)
     subsample_size = cap_size #round(0.1*len(train))
     train_sub, _ = torch.utils.data.random_split(train,[subsample_size,len(train)-subsample_size])
     tr_sub_ld = torch.utils.data.DataLoader(train_sub, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
-    model, val_loss = train_and_eval_model(network_name, dname, tr_sub_ld, valloader, batch_size, num_epochs) # don't use full dataset
+    model, val_loss = train_and_eval_model(network_names[0], dname, tr_sub_ld, valloader, batch_size, num_epochs) # don't use full dataset
     ensemble[model] = val_loss
     val_losses = []
     models = []
     data_inds = set()
     # ensemble_nets = set()
     # ensemble_nets.add(network_name)
-    while len(ensemble) < len(network_names) :
+    # while len(ensemble) < len(network_names) :
         # Take subset of points poorly predicted poor_subset
+    for network_name in network_names[1:]:
         poor_subset_loader, indices = get_poor_subset(ensemble, trainloader, train, batch_size, cap_size)
         data_inds.update(indices)
-        network_name = np.random.choice(network_names)
+        # network_name = np.random.choice(network_names)
         model, val_loss = train_and_eval_model(network_name, dname, poor_subset_loader, valloader, batch_size, num_epochs)
         models.append(model)
-        val_losses.append(val_loss)   #do we want to pick based on val_loss?
+        val_losses.append(val_loss)   #do we want to pick or weigh based on val_loss?
         ensemble[model] = val_loss
         # ensemble_nets.add(network_name)
         val_acc = get_ensemble_preds(ensemble, valloader,"validation")
