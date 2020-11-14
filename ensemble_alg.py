@@ -267,7 +267,7 @@ def get_dataset(batch_size, dname, filtered):
     
     # Pick best model for that subset
 def algorithm2_random(dname,network_names, batch_size, filtered=True):    # add a cap         
-    num_epochs = 5
+    num_epochs = 10
     train, val, trainloader,valloader,testloader = get_dataset(batch_size, dname, filtered)#get_mnist(batch_size)
     cap_size = round(len(train)/len(network_names))
     ensemble = {}
@@ -302,7 +302,7 @@ def algorithm2_random(dname,network_names, batch_size, filtered=True):    # add 
 def baseline1(dname, network_names, batch_size, filtered):
     print("Baseline 1 results")
     # network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34"]#"mlp"] # use mlp just for mnist
-    num_epochs = 25
+    num_epochs = 40
     train, val, trainloader,valloader,testloader = get_dataset(batch_size, dname, filtered)#get_mnist(batch_size)
     # cap_size = round(len(train)/len(network_names))
     # ensemble = {}
@@ -315,6 +315,7 @@ def baseline1(dname, network_names, batch_size, filtered):
 if __name__ == '__main__':
     filtered = False
     batch_size = 128
-    network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34"]#"mlp"] # use mlp just for mnist
+    network_names = ["vgg11", "vgg13","resnet18", "resnet34"]
+    # network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34"]#"mlp"] # use mlp just for mnist
     algorithm2_random("cifar10", network_names, batch_size, filtered)
     baseline1("cifar10", network_names, batch_size, filtered)
