@@ -271,10 +271,9 @@ def algorithm2_random(dname, network_names, batch_size, num_epochs, filtered=Tru
     train_sub, _ = torch.utils.data.random_split(train,[subsample_size,len(train)-subsample_size])
     tr_sub_ld = torch.utils.data.DataLoader(train_sub, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
     model, val_loss = train_and_eval_model(network_names[0], dname, tr_sub_ld, valloader, batch_size, num_epochs) # don't use full dataset
-    ens_acc = get_ensemble_preds(ensemble, valloader,"validation")
     ensemble[model] = val_loss
     val_losses = [val_loss]
-    ensemble_vals = [ens_acc]
+    ensemble_vals = [val_loss]
     models = [model]
     data_inds = set()
     # while len(ensemble) < len(network_names) :
