@@ -288,7 +288,7 @@ def algorithm2_random(dname, network_names, batch_size, num_epochs, filtered=Tru
         ensemble[model] = val_loss
         ensemble_vals.append(ens_acc)
     test_acc = get_ensemble_preds(ensemble, testloader,"test")
-    data_prop = (len(data_inds)+cap_size)/len(train)*100
+    data_prop = (len(data_inds)+subsample_size)/len(train)*100
     print(test_acc)
     print("data percentage used",data_prop)
     return val_losses, ensemble_vals, test_acc, data_prop
