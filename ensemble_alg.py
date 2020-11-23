@@ -244,9 +244,10 @@ def algorithm2_random(dname, network_names, batch_size, num_epochs, filtered=Tru
     models = [model]
     data_inds = set()
     # while len(ensemble) < len(network_names) :
-    for network_name in network_names[1:]:
+    for network_name in network_names[1]:
         # network_name = np.random.choice(network_names)
         poor_subset_loader, indices = get_poor_subset(ensemble, trainloader, train, batch_size, subsample_size)
+        print(indices)
         model, val_loss = train_and_eval_model(network_name, dname, poor_subset_loader, valloader, batch_size, num_epochs)
         ens_acc = get_ensemble_preds(ensemble, valloader,"validation")
         data_inds.update(indices)
