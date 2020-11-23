@@ -55,10 +55,12 @@ def test(testloader, net):
     #         classes[i], 100 * class_correct[i] / class_total[i]))
 
 
-def train_and_eval_model(network_name, dataset, trainloader, valloader, batch_size, num_epochs):
+def train_and_eval_model(network_name, dataset, trainloader, valloader, batch_size, num_epochs, trained_model = None):
     # needs to return model and validation error
-    net = network(network_name, dataset)
-    net.cuda()
+    if trained_model is None:
+        net = network(network_name, dataset)
+        net.cuda()
+    else net = trained_model
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
@@ -296,36 +298,38 @@ def algorithm2_random(dname, network_names, batch_size, num_epochs, filtered=Tru
 def baseline1(dname, network_names, batch_size, filtered):
     print("Baseline 1 results")
     # network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34"]#"mlp"] # use mlp just for mnist
-    num_epochs = 45
-    train, val, trainloader,valloader,testloader = get_dataset(batch_size, dname, filtered)#get_mnist(batch_size)
-    # cap_size = round(len(train)/len(network_names))
-    # ensemble = {}
+    num_epochs = 25
+    train, val, trainloader,valloader,testloader = get_dataset(batch_size, dname, filtered) #get_mnist(batch_size)
     network_name = np.random.choice(network_names)
-    model, val_loss = train_and_eval_model(network_name, dname, trainloader, valloader, batch_size, num_epochs)
+    model, val_loss = train_and_eval_model(network_name, dname, trainloader, valloader, batch_size, 5)
+    val_losses = [val_loss]
+    for i in range(4):
+        model, val_loss = train_and_eval_model(network_name, dname, trainloader, valloader, batch_size, 5, trained_model = model)
+        val_losses.append(val_loss)
     test_loss = test(testloader, model)
     print("val loss:", val_loss)
     print("test loss:", test_loss)
-    return val_loss, test_loss
+    return val_losses, test_loss
 
 if __name__ == '__main__':
     pp = PdfPages('iterative_refinement_plots.pdf')
-    filtered = False
+    filtered = True
     batch_size = 128
-    num_epochs = 15
+    num_epochs = 5# 15
     dname = "cifar10"
-    network_names = ["vgg11","resnet18", "resnet34"]
-    # network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34"]#"mlp"] # use mlp just for mnist
+    # network_names = ["vgg11","resnet18", "resnet34"] filter false
+    network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34"]#"mlp"] # use mlp just for mnist
     for i in range(1):  #need to plot means?
         np.random.shuffle(network_names)
         vals, ensemble_vals, e_test, data_prop =  algorithm2_random(dname, network_names, batch_size, num_epochs, filtered)
-        b_val, b_test = baseline1(dname, network_names, batch_size, filtered)
+        b_vals, b_test = baseline1(dname, network_names, batch_size, filtered)
         # plot it
         fig = plt.figure()
         xs = np.arange(len(vals))
-        p1, = plt.scatter(xs, vals, marker='b.', label = 'model val acc')
-        p2, = plt.plot(xs, ensemble_vals,'r', linewidth = 4, label = 'ensemble val acc')
-        p3, = plt.plot(b_val, linestyle='dashed', color = 'c', label = 'baseline val acc') #make style same as above
-        p4, = plt.plot(b_test, linestyle='dashdot', color = 'c', label = 'baseline test acc')
+        p1, = plt.scatter(xs, vals, c='b', marker='x', label = 'model val acc') # ind member val acc
+        p2, = plt.plot(xs, ensemble_vals,'-r', linewidth = 4, label = 'ensemble val acc') # ensemble validation acc
+        p3, = plt.plot(b_vals, linestyle='dashed', color = 'c', label = 'baseline val acc') # make style same as above
+        p4, = plt.plot(b_test, linestyle='dashdot', color = 'c', label = 'baseline test acc') # 
         p5, = plt.plot(e_test, linestyle='dashdot', color = 'r', label = 'ensemble test acc')
         plt.title("Dataset:{} using {} and num_models:{}".format(dname,round(data_prop),len(network_names)))
         plt.xticks(xs,network_names)
