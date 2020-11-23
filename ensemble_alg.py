@@ -316,7 +316,7 @@ if __name__ == '__main__':
     pp = PdfPages('iterative_refinement_plots.pdf')
     filtered = True
     batch_size = 128
-    num_epochs = 5# 15
+    num_epochs = 5 # 15
     dname = "cifar10"
     # network_names = ["vgg11","resnet18", "resnet34"] filter false
     network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34"]#"mlp"] # use mlp just for mnist
@@ -335,6 +335,6 @@ if __name__ == '__main__':
         plt.title("Dataset:{} using {} and num_models:{}".format(dname,round(data_prop),len(network_names)))
         plt.xticks(xs,network_names)
         plt.ylabel("Accuracy")
-        plt.legend(handles=[p1, p2, p3, p4, p5], title='title', bbox_to_anchor=(1.05, 1), loc='upper left', prop=fontP)
+        plt.legend(handles=[p1, p2, p3, p4, p5], title='title', bbox_to_anchor=(1.05, 1), loc='upper left')
     pp.savefig(fig)
     pp.close()
