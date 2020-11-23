@@ -327,11 +327,11 @@ if __name__ == '__main__':
         # plot it
         fig = plt.figure()
         xs = np.arange(len(vals))
-        p1, = plt.scatter(xs, vals, c='b', marker='x', label = 'model val acc') # ind member val acc
-        p2, = plt.plot(xs, ensemble_vals,'-r', linewidth = 4, label = 'ensemble val acc') # ensemble validation acc
-        p3, = plt.plot(b_vals, linestyle='dashed', color = 'c', label = 'baseline val acc') # make style same as above
-        p4, = plt.plot(b_test, linestyle='dashdot', color = 'c', label = 'baseline test acc') # 
-        p5, = plt.plot(e_test, linestyle='dashdot', color = 'r', label = 'ensemble test acc')
+        p1 = plt.scatter(xs, vals, c='b', marker='x', label = 'model val acc') # ind member val acc
+        p2 = plt.plot(xs, ensemble_vals,'-r', linewidth = 4, label = 'ensemble val acc') # ensemble validation acc
+        p3 = plt.plot(b_vals, linestyle='dashed', color = 'c', label = 'baseline val acc') # make style same as above
+        p4 = plt.plot(b_test, linestyle='dashdot', color = 'c', label = 'baseline test acc') # 
+        p5 = plt.plot(e_test, linestyle='dashdot', color = 'r', label = 'ensemble test acc')
         plt.title("Dataset:{} using {} and num_models:{}".format(dname,round(data_prop),len(network_names)))
         plt.xticks(xs,network_names)
         plt.ylabel("Accuracy")
