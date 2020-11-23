@@ -284,7 +284,7 @@ if __name__ == '__main__':
     # network_names = ["vgg11","resnet18", "resnet34"] filter false
     network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34"]#"mlp"] # use mlp just for mnist
     for i in range(1):  #need to plot means?
-        np.random.shuffle(network_names)
+        # np.random.shuffle(network_names)
         vals, ensemble_vals, e_test, data_prop =  algorithm2_random(dname, network_names, batch_size, num_epochs, filtered)
         b_vals, b_test = baseline1(dname, network_names, batch_size, filtered)
         # plot it
