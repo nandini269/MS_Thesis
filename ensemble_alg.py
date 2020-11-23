@@ -222,43 +222,6 @@ def get_cifar10(batch_size,filter=True):
 # validation set to choose weights..least squares problem- sketch n solve that ??
 # removing the last layer
 
-
-def algorithm2_loop():    
-    dataset = "mnist"          
-    network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34","mlp"] # use mlp just for mnist
-    batch_size = 128
-    num_epochs = 10
-    train, val, trainloader,valloader,testloader = get_mnist(batch_size)
-    ensemble = {}
-    curr =  network_names[0]  #huh?
-    model, val_loss = train_and_eval_model(curr, dataset, trainloader, valloader, batch_size, num_epochs) # don't use full dataset
-    ensemble[model] = val_loss
-    ensemble_nets = set()
-    ensemble_nets.add(curr)
-    cap_size = round(len(train)/len(network_names))
-    while len(ensemble) < len(network_names) :
-        # Take subset of points poorly predicted poor_subset
-        poor_subset_loader, indices = get_poor_subset(ensemble, trainloader, train, batch_size, cap_size)
-        val_losses = []
-        models = []
-        inds= []
-        for i,network in enumerate(network_names): # maybe can just randomly select a model and train
-            if network_name not in ensemble_nets: #are we okay repeating?
-                # evaluate or train on subset and choose best
-                model, val_loss = train_and_eval_model(network_name, dataset, poor_subset_loader, valloader, batch_size, num_epochs)
-                models.append(model)
-                val_losses.append(val_loss)   #do we want to pick based on val_loss?
-                inds.append(i)
-        best_ind = np.argmin(val_losses)
-        best_model = models[best_ind]
-        ensemble[best_model] = val_loss
-        best_i = inds[best_ind]
-        ensemble_nets.add(network_names[best_i])
-    test_acc= get_ensemble_preds(ensemble, testloader, "test")
-    print(len(ensemble))
-    print(test_acc)
-    #test
-
 def get_dataset(batch_size, dname, filtered):
     if dname == "mnist":
         return get_mnist(batch_size)
@@ -268,7 +231,7 @@ def get_dataset(batch_size, dname, filtered):
     
     # Pick best model for that subset
 def algorithm2_random(dname, network_names, batch_size, num_epochs, filtered=True):         
-    train, val, trainloader,valloader,testloader = get_dataset(batch_size, dname, filtered)#get_mnist(batch_size)
+    train, val, trainloader,valloader,testloader = get_dataset(batch_size, dname, filtered) # get_mnist(batch_size)
     subsample_size = round(len(train)/len(network_names)) #round(0.1*len(train))
     ensemble = {}
     train_sub, _ = torch.utils.data.random_split(train,[subsample_size,len(train)-subsample_size])
@@ -335,6 +298,6 @@ if __name__ == '__main__':
         plt.title("Dataset:{} using {} and num_models:{}".format(dname,round(data_prop),len(network_names)))
         plt.xticks(xs,network_names)
         plt.ylabel("Accuracy")
-        plt.legend(handles=[p1, p2, p3, p4, p5], title='title', bbox_to_anchor=(1.05, 1), loc='upper left')
+        plt.legend(handles=[p1, p2, p3, p4, p5], title='title')#, bbox_to_anchor=(1.05, 1), loc='upper left')
     pp.savefig(fig)
     pp.close()
