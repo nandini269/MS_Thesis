@@ -62,8 +62,8 @@ def train_and_eval_model(network_name, dataset, trainloader, valloader, batch_si
         net.cuda()
     else:
         net = trained_model
-        criterion = nn.CrossEntropyLoss()
-        optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
     for epoch in range(num_epochs):  # same number of epochs same for both datasets?
         running_loss = 0.0
