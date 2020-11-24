@@ -266,7 +266,7 @@ def baseline1(dname, network_names, batch_size, filtered):
     # network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34"]#"mlp"] # use mlp just for mnist
     num_epochs = 25
     train, val, trainloader,valloader,testloader = get_dataset(batch_size, dname, filtered) #get_mnist(batch_size)
-    network_name = np.random.choice(network_names)
+    network_name = "lenet" #np.random.choice(network_names)
     model, val_loss = train_and_eval_model(network_name, dname, trainloader, valloader, batch_size, 5)
     val_losses = [val_loss]
     for i in range(4):
