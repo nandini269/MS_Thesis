@@ -155,8 +155,8 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
             # print(poor_subset.shape)
             # poor_subsets.append(poor_subset)
         print("num images in poor subset: ",len(poor_subsets))
-    # if len(indices)>cap_size:
-    #     indices = indices[:cap_size]
+    if len(indices)>cap_size:
+        indices = indices[:cap_size]
     subset = torch.utils.data.Subset(train, indices)
     # check_distribution(dataset,top_help_list)
     poor_loader = torch.utils.data.DataLoader(subset, shuffle=True, batch_size=batch_size, num_workers=1)
