@@ -204,8 +204,8 @@ def get_cifar10(batch_size,filter=True):
     train_size = round(0.75*len(dataset))
     val_size = len(dataset) - train_size 
     train, val = torch.utils.data.random_split(dataset, [train_size, val_size])
-    trainloader = torch.utils.data.DataLoader(train, shuffle=False, batch_size=batch_size, pin_memory=True, num_workers=1)
-    valloader = torch.utils.data.DataLoader(val, shuffle=False, batch_size=batch_size, pin_memory=True, num_workers=1)
+    trainloader = torch.utils.data.DataLoader(train, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
+    valloader = torch.utils.data.DataLoader(val, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
     return train, val, trainloader,valloader,testloader
 # what is the baseline? 
 # num epochs? 5 for now
@@ -233,7 +233,7 @@ def get_dataset(batch_size, dname, filtered):
 def algorithm2_random(dname, network_names, batch_size, num_epochs, filtered=True):         
     train, val, trainloader,valloader,testloader = get_dataset(batch_size, dname, filtered) # get_mnist(batch_size)
     subsample_size = round(len(train)/len(network_names)) #round(0.1*len(train))
-    print(subsample_size)
+    # print(subsample_size)
     ensemble = {}
     train_sub, _ = torch.utils.data.random_split(train,[subsample_size,len(train)-subsample_size])
     tr_sub_ld = torch.utils.data.DataLoader(train_sub, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
@@ -244,10 +244,10 @@ def algorithm2_random(dname, network_names, batch_size, num_epochs, filtered=Tru
     models = [model]
     data_inds = set()
     # while len(ensemble) < len(network_names) :
-    for network_name in network_names[1]:
+    for network_name in network_names[1:]:
         # network_name = np.random.choice(network_names)
         poor_subset_loader, indices = get_poor_subset(ensemble, trainloader, train, batch_size, subsample_size)
-        print(indices)
+        # print(indices)
         model, val_loss = train_and_eval_model(network_name, dname, poor_subset_loader, valloader, batch_size, num_epochs)
         ens_acc = get_ensemble_preds(ensemble, valloader,"validation")
         data_inds.update(indices)
