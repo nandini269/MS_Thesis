@@ -173,16 +173,15 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
             predicteds = []
             image, label = data[0], data[1]
             for model in ensemble:
-                output = model(images)
+                output = model(image)
                 _, predicted = torch.max(outputs.data, 1)  # get median predicted
                 predicteds.append(predicted)
-            predicteds = torch.stack(predicteds, dim = 1)
-            # print(len(ensemble),predicteds.shape)
+            predicteds = torch.stack(predicteds)
             predicted_mode, mode_ind = torch.mode(predicteds)
-            # if i==3:
-            #     print("predicted modes:",predicted_modes)
-            #     print("true labels:",labels)
-            #     print("predicted modes shape",predicted_modes.shape )
+            if i==3:
+                print("predicted mode:",predicted_mode)
+                print("true label:",label)
+                print("predicteds",predicteds)
             if predicted_mode!= label:
                 poor_subsets.append(image)
                 indices.append(i)
