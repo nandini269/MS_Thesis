@@ -180,6 +180,7 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
                 print("predicted mode:",predicted_mode)
                 print("true label:",label)
                 print("predicteds",predicteds)
+                print(predicted_mode)
             if predicted_mode!= label:
                 indices.append(i)
         print("num images in poor subset: ",len(indices))
