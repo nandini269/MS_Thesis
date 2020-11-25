@@ -163,7 +163,7 @@ def get_poor_subset_og(ensemble, trainloader, train, batch_size, cap_size):
     # poor_loader = torch.utils.data.DataLoader(poor_subsets, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
     return poor_loader, indices
 
-    def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
+def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
     # Take subset of points poorly predicted poor_subset
     poor_subsets = []
     indices = []
