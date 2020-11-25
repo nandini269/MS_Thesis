@@ -182,7 +182,7 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
                 print("predicteds",predicteds)
             if predicted_mode!= label:
                 indices.append(i)
-        print("num images in poor subset: ",len(poor_subsets))
+        print("num images in poor subset: ",len(indices))
     if len(indices)>cap_size:
         indices = np.random.choice(indices, cap_size)
     subset = torch.utils.data.Subset(train, indices)
