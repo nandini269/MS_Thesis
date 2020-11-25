@@ -165,15 +165,13 @@ def get_poor_subset_og(ensemble, trainloader, train, batch_size, cap_size):
 
 def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
     # Take subset of points poorly predicted poor_subset
-    poor_subsets = []
     indices = []
     with torch.no_grad():
         for i,data in enumerate(train):  # per batch_size
-            # inds = torch.arange(i*batch_size,i*batch_size+data[1].shape[0])
             predicteds = []
             image, label = data[0], data[1]
             for model in ensemble:
-                output = model(image)
+                output = model(torch.unsqueeze(image,0))
                 _, predicted = torch.max(outputs.data, 1)  # get median predicted
                 predicteds.append(predicted)
             predicteds = torch.stack(predicteds)
@@ -183,10 +181,7 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
                 print("true label:",label)
                 print("predicteds",predicteds)
             if predicted_mode!= label:
-                poor_subsets.append(image)
                 indices.append(i)
-            # print(poor_subset.shape)
-            # poor_subsets.append(poor_subset)
         print("num images in poor subset: ",len(poor_subsets))
     if len(indices)>cap_size:
         indices = np.random.choice(indices, cap_size)
