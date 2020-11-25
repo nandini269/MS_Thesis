@@ -130,7 +130,7 @@ def get_ensemble_preds(ensemble, dataloader, test_or_val):
     # print("total:",total)
     return (correct/total)
 
-def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
+def get_poor_subset_og(ensemble, trainloader, train, batch_size, cap_size):
     # Take subset of points poorly predicted poor_subset
     poor_subsets = []
     indices = []
@@ -157,6 +157,40 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
         print("num images in poor subset: ",len(poor_subsets))
     if len(indices)>cap_size:
         indices = indices[:cap_size]
+    subset = torch.utils.data.Subset(train, indices)
+    # check_distribution(dataset,top_help_list)
+    poor_loader = torch.utils.data.DataLoader(subset, shuffle=True, batch_size=batch_size, num_workers=1)
+    # poor_loader = torch.utils.data.DataLoader(poor_subsets, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
+    return poor_loader, indices
+
+    def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
+    # Take subset of points poorly predicted poor_subset
+    poor_subsets = []
+    indices = []
+    with torch.no_grad():
+        for i,data in enumerate(train):  # per batch_size
+            # inds = torch.arange(i*batch_size,i*batch_size+data[1].shape[0])
+            predicteds = []
+            image, label = data[0].cuda(), data[1].cuda()
+            for model in ensemble:
+                output = model(images)
+                _, predicted = torch.max(outputs.data, 1)  # get median predicted
+                predicteds.append(predicted)
+            predicteds = torch.stack(predicteds, dim = 1)
+            # print(len(ensemble),predicteds.shape)
+            predicted_mode, mode_ind = torch.mode(predicteds)
+            # if i==3:
+            #     print("predicted modes:",predicted_modes)
+            #     print("true labels:",labels)
+            #     print("predicted modes shape",predicted_modes.shape )
+            if predicted_mode!= label:
+                poor_subsets.append(image)
+                indices.append(i)
+            # print(poor_subset.shape)
+            # poor_subsets.append(poor_subset)
+        print("num images in poor subset: ",len(poor_subsets))
+    if len(indices)>cap_size:
+        indices = np.random.choice(indices, cap_size)
     subset = torch.utils.data.Subset(train, indices)
     # check_distribution(dataset,top_help_list)
     poor_loader = torch.utils.data.DataLoader(subset, shuffle=True, batch_size=batch_size, num_workers=1)
@@ -294,9 +328,9 @@ if __name__ == '__main__':
         xs = np.arange(len(vals))
         p1, = plt.plot(xs, vals, 'bo', label = 'model val acc') # ind member val acc
         p2, = plt.plot(xs, ensemble_vals,'-r', linewidth = 4, label = 'ensemble val acc') # ensemble validation acc
-        p3, = plt.plot(b_vals, linestyle='dashed', color = 'c', label = 'baseline val acc') # make style same as above
-        p4, = plt.plot(b_test, linestyle='dashdot', color = 'c', label = 'baseline test acc') # 
-        p5, = plt.plot(e_test, linestyle='dashdot', color = 'r', label = 'ensemble test acc')
+        p3, = plt.plot(xs, b_vals, linestyle='dashed', color = 'c', label = 'baseline val acc') # make style same as above
+        p4, = plt.plot([b_test]*len(b_vals), linestyle='dashdot', color = 'c', label = 'baseline test acc') # 
+        p5, = plt.plot([e_test]*len(b_vals), linestyle='dashdot', color = 'r', label = 'ensemble test acc')
         plt.title("Dataset:{} using {} and num_models:{}".format(dname,round(data_prop),len(network_names)))
         plt.xticks(xs,network_names)
         plt.ylabel("Accuracy")
