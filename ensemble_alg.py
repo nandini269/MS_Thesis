@@ -169,7 +169,7 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
     with torch.no_grad():
         for i,data in enumerate(train):  # per batch_size
             predicteds = []
-            image, label = data[0], data[1]
+            image, label = data[0].cuda(), data[1]
             for model in ensemble:
                 output = model(torch.unsqueeze(image,0))
                 _, predicted = torch.max(outputs.data, 1)  # get median predicted
