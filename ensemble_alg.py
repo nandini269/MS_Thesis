@@ -166,6 +166,7 @@ def get_poor_subset_og(ensemble, trainloader, train, batch_size, cap_size):
 def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
     # Take subset of points poorly predicted poor_subset
     indices = []
+    labels = []  # maybe keep half of previous indices?
     with torch.no_grad():
         for i,data in enumerate(train):  # per batch_size
             predicteds = []
@@ -180,9 +181,11 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
                 print("predicted mode:",predicted_mode)
                 print("true label:",label)
                 print("predicteds",predicteds)
-                print(predicted_mode)
             if predicted_mode!= label:
                 indices.append(i)
+                labels.append(label)
+        print("indices areeeeee:",indices)
+        print("labels areeeeee:", labels)
         print("num images in poor subset: ",len(indices))
     if len(indices)>cap_size:
         indices = np.random.choice(indices, cap_size)
