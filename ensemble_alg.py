@@ -175,7 +175,7 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
                 _, predicted = torch.max(output.data, 1)  # get median predicted
                 predicteds.append(predicted)
             predicteds = torch.stack(predicteds)
-            predicted_mode, mode_ind = torch.mode(predicteds)
+            predicted_mode, mode_ind = torch.mode(predicteds, dim = 0)
             if i==0:
                 print("predicted mode:",predicted_mode)
                 print("true label:",label)
