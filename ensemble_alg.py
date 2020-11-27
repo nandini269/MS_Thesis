@@ -311,9 +311,9 @@ def algorithm2_random(dname, network_names, batch_size, num_epochs, filtered=Tru
 def baseline1(dname, network_names, batch_size, filtered):
     print("Baseline 1 results")
     # network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34"]#"mlp"] # use mlp just for mnist
-    num_epochs = 25
+    num_epochs = 32
     train, val, trainloader,valloader,testloader = get_dataset(batch_size, dname, filtered) #get_mnist(batch_size)
-    network_name = "lenet" #np.random.choice(network_names)
+    network_name = np.random.choice(network_names)
     model, val_loss = train_and_eval_model(network_name, dname, trainloader, valloader, batch_size, 5)
     val_losses = [val_loss]
     for i in range(4):
@@ -328,10 +328,10 @@ if __name__ == '__main__':
     pp = PdfPages('iterative_refinement_plots.pdf')
     filtered = True
     batch_size = 128
-    num_epochs = 5 # 15
+    num_epochs = 8 # 15
     dname = "cifar10"
     # network_names = ["vgg11","resnet18", "resnet34"] filter false
-    network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34"]#"mlp"] # use mlp just for mnist
+    network_names = ["vgg11", "vgg13","resnet18", "resnet34"]#"mlp", "lenet"] # use mlp just for mnist
     for i in range(3):  #need to plot means?
         # np.random.shuffle(network_names)
         vals, ensemble_vals, e_test, data_prop =  algorithm2_random(dname, network_names, batch_size, num_epochs, filtered)
@@ -344,7 +344,7 @@ if __name__ == '__main__':
         p3, = plt.plot(xs, b_vals, linestyle='dashed', color = 'c', label = 'baseline val acc') # make style same as above
         p4, = plt.plot([b_test]*len(b_vals), linestyle='dashdot', color = 'c', label = 'baseline test acc') # 
         p5, = plt.plot([e_test]*len(b_vals), linestyle='dashdot', color = 'r', label = 'ensemble test acc')
-        plt.title("Dataset:{} using {} and num_models:{}".format(dname,round(data_prop),len(network_names)))
+        plt.title("Dataset:{} using {} percent and num_models:{}".format(dname,round(data_prop),len(network_names)))
         plt.xticks(xs,network_names)
         plt.ylabel("Accuracy")
         plt.legend(handles=[p2, p3, p4, p5], title='title')#, bbox_to_anchor=(1.05, 1), loc='upper left')
