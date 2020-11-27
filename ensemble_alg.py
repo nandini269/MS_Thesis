@@ -324,7 +324,7 @@ def baseline1(dname, network_names, batch_size, filtered):
     return val_losses, test_loss
 
 if __name__ == '__main__':
-    pp = PdfPages('iterative_refinement_mnist.pdf')
+    pp = PdfPages('iterative_refinement_mnist_real.pdf')
     filtered = False
     batch_size = 128
     num_epochs = 5 # 15
