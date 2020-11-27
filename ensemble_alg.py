@@ -315,10 +315,10 @@ def baseline1(dname, network_names, batch_size, filtered):
     num_epochs = 32
     train, val, trainloader,valloader,testloader = get_dataset(batch_size, dname, filtered) #get_mnist(batch_size)
     network_name = np.random.choice(network_names)
-    model, val_loss = train_and_eval_model(network_name, dname, trainloader, valloader, batch_size, 5)
+    model, val_loss = train_and_eval_model(network_name, dname, trainloader, valloader, batch_size, 8)
     val_losses = [val_loss]
-    for i in range(4):
-        model, val_loss = train_and_eval_model(network_name, dname, trainloader, valloader, batch_size, 5, trained_model = model)
+    for i in range(3):
+        model, val_loss = train_and_eval_model(network_name, dname, trainloader, valloader, batch_size, 8, trained_model = model)
         val_losses.append(val_loss)
     test_loss = test(testloader, model)
     print("val loss:", val_loss)
