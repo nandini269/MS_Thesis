@@ -327,10 +327,10 @@ def baseline1(dname, network_names, batch_size, filtered):
 
 if __name__ == '__main__':
     pp = PdfPages('iterative_refinement_mnist.pdf')
-    filtered = True
+    filtered = False
     batch_size = 128
     num_epochs = 5 # 15
-    dname = "mnist"
+    dname = "cifar10"
     # network_names = ["vgg11","resnet18", "resnet34"] filter false
     network_names = ["vgg11", "lenet","vgg13","resnet18", "resnet34"]#"mlp", "lenet"] # use mlp just for mnist
     for i in range(3):  #need to plot means?
