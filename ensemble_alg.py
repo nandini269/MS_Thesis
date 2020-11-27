@@ -168,6 +168,7 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
     indices = []
     labels = []  # maybe keep half of previous indices?
     with torch.no_grad():
+        l_d = {}
         for i,data in enumerate(train):  # per batch_size
             predicteds = []
             image, label = data[0].cuda(), data[1]
@@ -177,16 +178,29 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
                 predicteds.append(predicted)
             predicteds = torch.stack(predicteds)
             predicted_mode, mode_ind = torch.mode(predicteds, dim = 0)
-            if i==0:
-                print("predicted mode:",predicted_mode)
-                print("true label:",label)
-                print("predicteds",predicteds)
+            # if i==0:
+            #     print("predicted mode:",predicted_mode)
+            #     print("true label:",label)
+            #     print("predicteds",predicteds)
             if predicted_mode!= label:
-                indices.append(i)
+                # indices.append(i)
                 labels.append(label)
-        print("indices areeeeee:",indices)
+                if label in l_d:
+                    l_d[label].append(i)
+                else:
+                    l_d[label] = [i]
+        # print("indices areeeeee:",indices)
         print("labels areeeeee:", Counter(labels))
-        print("num images in poor subset: ",len(indices))
+        
+    min_l = 99999
+    for l in l_d:
+        if len(l_d[l])<min_l:
+            min_l = len(l_d[l])
+    # balance datasets
+    for l in l_d:
+        indices.append(np.random.choice(l_d[l],min_l))
+
+    print("num images in poor subset: ",len(indices))
     if len(indices)>cap_size:
         indices = np.random.choice(indices, cap_size)
     subset = torch.utils.data.Subset(train, indices)
