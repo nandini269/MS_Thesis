@@ -198,8 +198,9 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
             min_l = len(l_d[l])
     # balance datasets
     for l in l_d:
-        indices.append(np.random.choice(l_d[l],min_l))
-
+        indices.extend(np.random.choice(l_d[l],min_l))
+    if len(indices)<cap_size/2:
+        indices.extend(np.random.choice(np.arange(len(train)),cap_size/4))
     print("num images in poor subset: ",len(indices))
     if len(indices)>cap_size:
         indices = np.random.choice(indices, cap_size)
