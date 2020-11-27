@@ -29,6 +29,7 @@ def test(testloader, net):
     total = 0
     class_correct = list(0. for i in range(10))
     class_total = list(0. for i in range(10))
+    net.eval()
     with torch.no_grad():
         for data in testloader:
             #images, labels = data
@@ -38,8 +39,6 @@ def test(testloader, net):
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
             _, pred = torch.max(outputs, 1)
-            # print(outputs)
-            # print(outputs.data) # test and print
             c = (pred == labels).squeeze()
             for i in range(4): # why is this 4? test and print
                 label = labels[i]
@@ -62,6 +61,7 @@ def train_and_eval_model(network_name, dataset, trainloader, valloader, batch_si
         net.cuda()
     else:
         net = trained_model
+    net.train()
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
 
@@ -106,6 +106,7 @@ def get_ensemble_preds(ensemble, dataloader, test_or_val):
             predicteds = []
             images, labels = data[0].cuda(), data[1].cuda()
             for model in ensemble:
+                model.eval()
                 val_loss = ensemble[model]
                 outputs = model(images)
                 _, predicted = torch.max(outputs.data, 1)  # get median predicted
@@ -126,8 +127,6 @@ def get_ensemble_preds(ensemble, dataloader, test_or_val):
             #     class_correct[label] += c[i].item()
             #     class_total[label] += 1
     print("Accuracy of the ensemble on the {} images: {}".format(test_or_val,100*correct/total))
-    # print("correct:", correct)
-    # print("total:",total)
     return (correct/total)
 
 def get_poor_subset_og(ensemble, trainloader, train, batch_size, cap_size):
@@ -173,6 +172,7 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
             predicteds = []
             image, label = data[0].cuda(), data[1]
             for model in ensemble:
+                model.eval() # check
                 output = model(torch.unsqueeze(image,0))
                 _, predicted = torch.max(output.data, 1)  # get median predicted
                 predicteds.append(predicted)
@@ -201,7 +201,7 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
         if len(l_d)!=1:
             indices.extend(np.random.choice(l_d[l],min_l))
     if len(indices)<cap_size/2:
-        indices.extend(np.random.choice(np.arange(len(train)),round(cap_size/2)))
+        indices.extend(np.random.choice(np.arange(len(train)),round(0.75*cap_size)))
     print("num images in poor subset: ",len(indices))
     if len(indices)>cap_size:
         indices = np.random.choice(indices, cap_size)
@@ -281,7 +281,6 @@ def get_dataset(batch_size, dname, filtered):
 def algorithm2_random(dname, network_names, batch_size, num_epochs, filtered=True):         
     train, val, trainloader,valloader,testloader = get_dataset(batch_size, dname, filtered) # get_mnist(batch_size)
     subsample_size = round(len(train)/len(network_names)) #round(0.1*len(train))
-    # print(subsample_size)
     ensemble = {}
     train_sub, _ = torch.utils.data.random_split(train,[subsample_size,len(train)-subsample_size])
     tr_sub_ld = torch.utils.data.DataLoader(train_sub, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
@@ -291,7 +290,6 @@ def algorithm2_random(dname, network_names, batch_size, num_epochs, filtered=Tru
     ensemble_vals = [val_loss]
     models = [model]
     data_inds = set()
-    # while len(ensemble) < len(network_names) :
     for network_name in network_names[1:]:
         # network_name = np.random.choice(network_names)
         poor_subset_loader, indices = get_poor_subset(ensemble, trainloader, train, batch_size, subsample_size)
@@ -330,9 +328,10 @@ if __name__ == '__main__':
     filtered = False
     batch_size = 128
     num_epochs = 5 # 15
-    dname = "cifar10"
+    dname = "mnist"
     # network_names = ["vgg11","resnet18", "resnet34"] filter false
-    network_names = ["vgg11", "lenet","vgg13","resnet18", "resnet34"]#"mlp", "lenet"] # use mlp just for mnist
+    network_names_cifar10 = ["vgg11", "lenet","vgg13","resnet18", "resnet34"]#"mlp", "lenet"] # use mlp just for mnist
+    network_names = ["vgg11", "lenet","vgg13","resnet18", "resnet34"]
     for i in range(3):  #need to plot means?
         # np.random.shuffle(network_names)
         vals, ensemble_vals, e_test, data_prop =  algorithm2_random(dname, network_names, batch_size, num_epochs, filtered)
