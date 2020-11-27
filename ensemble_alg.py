@@ -200,7 +200,7 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
     for l in l_d:
         indices.extend(np.random.choice(l_d[l],min_l))
     if len(indices)<cap_size/2:
-        indices.extend(np.random.choice(np.arange(len(train)),round(cap_size/4)))
+        indices.extend(np.random.choice(np.arange(len(train)),round(cap_size/2)))
     print("num images in poor subset: ",len(indices))
     if len(indices)>cap_size:
         indices = np.random.choice(indices, cap_size)
@@ -332,14 +332,14 @@ if __name__ == '__main__':
     dname = "cifar10"
     # network_names = ["vgg11","resnet18", "resnet34"] filter false
     network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34"]#"mlp"] # use mlp just for mnist
-    for i in range(1):  #need to plot means?
+    for i in range(3):  #need to plot means?
         # np.random.shuffle(network_names)
         vals, ensemble_vals, e_test, data_prop =  algorithm2_random(dname, network_names, batch_size, num_epochs, filtered)
         b_vals, b_test = baseline1(dname, network_names, batch_size, filtered)
         # plot it
         fig = plt.figure()
         xs = np.arange(len(vals))
-        p1, = plt.plot(xs, vals, 'bo', label = 'model val acc') # ind member val acc
+        # p1, = plt.plot(xs, vals, 'bo', label = 'model val acc') # ind member val acc
         p2, = plt.plot(xs, ensemble_vals,'-r', linewidth = 4, label = 'ensemble val acc') # ensemble validation acc
         p3, = plt.plot(xs, b_vals, linestyle='dashed', color = 'c', label = 'baseline val acc') # make style same as above
         p4, = plt.plot([b_test]*len(b_vals), linestyle='dashdot', color = 'c', label = 'baseline test acc') # 
@@ -347,6 +347,6 @@ if __name__ == '__main__':
         plt.title("Dataset:{} using {} and num_models:{}".format(dname,round(data_prop),len(network_names)))
         plt.xticks(xs,network_names)
         plt.ylabel("Accuracy")
-        plt.legend(handles=[p1, p2, p3, p4, p5], title='title')#, bbox_to_anchor=(1.05, 1), loc='upper left')
+        plt.legend(handles=[p2, p3, p4, p5], title='title')#, bbox_to_anchor=(1.05, 1), loc='upper left')
     pp.savefig(fig)
     pp.close()
