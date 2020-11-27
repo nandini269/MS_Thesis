@@ -312,13 +312,13 @@ def algorithm2_random(dname, network_names, batch_size, num_epochs, filtered=Tru
 def baseline1(dname, network_names, batch_size, filtered):
     print("Baseline 1 results")
     # network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34"]#"mlp"] # use mlp just for mnist
-    num_epochs = 32
+    num_epochs = 25
     train, val, trainloader,valloader,testloader = get_dataset(batch_size, dname, filtered) #get_mnist(batch_size)
     network_name = np.random.choice(network_names)
-    model, val_loss = train_and_eval_model(network_name, dname, trainloader, valloader, batch_size, 8)
+    model, val_loss = train_and_eval_model(network_name, dname, trainloader, valloader, batch_size, 5)
     val_losses = [val_loss]
-    for i in range(3):
-        model, val_loss = train_and_eval_model(network_name, dname, trainloader, valloader, batch_size, 8, trained_model = model)
+    for i in range(4):
+        model, val_loss = train_and_eval_model(network_name, dname, trainloader, valloader, batch_size, 5, trained_model = model)
         val_losses.append(val_loss)
     test_loss = test(testloader, model)
     print("val loss:", val_loss)
@@ -326,13 +326,13 @@ def baseline1(dname, network_names, batch_size, filtered):
     return val_losses, test_loss
 
 if __name__ == '__main__':
-    pp = PdfPages('iterative_refinement_plots.pdf')
+    pp = PdfPages('iterative_refinement_mnist.pdf')
     filtered = True
     batch_size = 128
-    num_epochs = 8 # 15
-    dname = "cifar10"
+    num_epochs = 5 # 15
+    dname = "mnist"
     # network_names = ["vgg11","resnet18", "resnet34"] filter false
-    network_names = ["vgg11", "vgg13","resnet18", "resnet34"]#"mlp", "lenet"] # use mlp just for mnist
+    network_names = ["vgg11", "lenet","vgg13","resnet18", "resnet34"]#"mlp", "lenet"] # use mlp just for mnist
     for i in range(3):  #need to plot means?
         # np.random.shuffle(network_names)
         vals, ensemble_vals, e_test, data_prop =  algorithm2_random(dname, network_names, batch_size, num_epochs, filtered)
@@ -341,13 +341,13 @@ if __name__ == '__main__':
         fig = plt.figure()
         xs = np.arange(len(vals))
         # p1, = plt.plot(xs, vals, 'bo', label = 'model val acc') # ind member val acc
-        p2, = plt.plot(xs, ensemble_vals,'-r', linewidth = 4, label = 'ensemble val acc') # ensemble validation acc
-        p3, = plt.plot(xs, b_vals, linestyle='dashed', color = 'c', label = 'baseline val acc') # make style same as above
+        p2, = plt.plot(xs, ensemble_vals,'-r', linewidth = 2, label = 'ensemble val acc') # ensemble validation acc
+        p3, = plt.plot(xs, b_vals, '-c', linewidth = 2, label = 'baseline val acc') # make style same as above
         p4, = plt.plot([b_test]*len(b_vals), linestyle='dashdot', color = 'c', label = 'baseline test acc') # 
         p5, = plt.plot([e_test]*len(b_vals), linestyle='dashdot', color = 'r', label = 'ensemble test acc')
         plt.title("Dataset:{} using {} percent and num_models:{}".format(dname,round(data_prop),len(network_names)))
         plt.xticks(xs,network_names)
         plt.ylabel("Accuracy")
         plt.legend(handles=[p2, p3, p4, p5], title='title')#, bbox_to_anchor=(1.05, 1), loc='upper left')
-    pp.savefig(fig)
+        pp.savefig(fig)
     pp.close()
