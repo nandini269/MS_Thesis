@@ -201,14 +201,13 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
         if len(l_d)!=1:
             indices.extend(np.random.choice(l_d[l],min_l))
     if len(indices)<cap_size/2:
-        indices.extend(np.random.choice(np.arange(len(train)),round(0.75*cap_size)))
+        indices.extend(np.random.choice(np.arange(len(train)),round(0.6*cap_size)))
     print("num images in poor subset: ",len(indices))
     if len(indices)>cap_size:
         indices = np.random.choice(indices, cap_size)
     subset = torch.utils.data.Subset(train, indices)
     # check_distribution(dataset,top_help_list)
     poor_loader = torch.utils.data.DataLoader(subset, shuffle=True, batch_size=batch_size, num_workers=1)
-    # poor_loader = torch.utils.data.DataLoader(poor_subsets, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
     return poor_loader, indices
 
 def get_mnist(batch_size):
@@ -386,7 +385,7 @@ if __name__ == '__main__':
     num_epochs = 5 # 15
     dname = "mnist"
     data_all = get_dataset(batch_size, dname, filtered)
-    pp = PdfPages('iref_'+dname+'_'+str(filtered)+'_'+num_epochs+'.pdf')
+    pp = PdfPages('iref_'+dname+'_'+str(filtered)+'_'+str(num_epochs)+'.pdf')
     network_names_mnist = ["vgg11","vgg13","resnet18", "resnet34","mlp"] # use mlp just for mnist
     network_names = ["vgg11", "lenet","vgg13","resnet18", "resnet34"]
     for i in range(3):  #need to plot means?
