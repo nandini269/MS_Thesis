@@ -378,7 +378,7 @@ def baseline2(data_all, dname, network_name, batch_size, num_epochs, filtered): 
     return val_losses, test_losses
 
 if __name__ == '__main__':
-    filtered = False
+    filtered = True
     batch_size = 128
     num_epochs = 5 # 15
     num_iters = 5 # add argument
