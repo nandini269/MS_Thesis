@@ -325,7 +325,7 @@ def algorithm2_random(data_all, dname, network_name, batch_size, num_epochs, fil
     test_acc = get_ensemble_preds(ensemble, testloader,"test")
     test_accs = [test_acc]
     data_inds = []
-    for i in range(3):
+    for i in range(4):
         poor_subset_loader, indices = get_poor_subset(ensemble, trainloader, train, batch_size, subsample_size)
         model, val_loss = train_and_eval_model(network_name, dname, poor_subset_loader, valloader, batch_size, num_epochs, trained_model = model)
         ens_acc = get_ensemble_preds(ensemble, valloader,"validation")
@@ -368,7 +368,7 @@ def baseline2(data_all, dname, network_name, batch_size, num_epochs, filtered): 
     test_loss = test(testloader, model)
     val_losses = [val_loss]
     test_losses = [test_loss]
-    for i in range(3):
+    for i in range(4):
         model, val_loss = train_and_eval_model(network_name, dname, trainloader, valloader, batch_size, num_epochs, trained_model = model)
         val_losses.append(val_loss)
         test_loss = test(testloader, model)
@@ -381,7 +381,8 @@ if __name__ == '__main__':
     filtered = False
     batch_size = 128
     num_epochs = 5 # 15
-    dname = "mnist"
+    num_iters = 5 # add argument
+    dname = "cifar10"
     data_all = get_dataset(batch_size, dname, filtered)
     pp = PdfPages('iref_'+dname+'_'+str(filtered)+'_'+str(num_epochs)+'.pdf')
     network_names_mnist = ["vgg11","vgg13","resnet18", "resnet34","mlp"] # use mlp just for mnist
@@ -402,6 +403,6 @@ if __name__ == '__main__':
         # plt.xticks(xs,network_names)
         plt.xlabel("Number of epochs")
         plt.ylabel("Accuracy")
-        plt.legend(handles=[p1, p2, p3, p4, p5])#, bbox_to_anchor=(1.05, 1), loc='upper left')
+        plt.legend(handles=[p1, p3, p4, p2, p5])#, bbox_to_anchor=(1.05, 1), loc='upper left')
         pp.savefig(fig)
     pp.close()
