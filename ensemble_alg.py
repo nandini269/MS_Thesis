@@ -404,6 +404,6 @@ if __name__ == '__main__':
         # plt.xticks(xs,network_names)
         plt.xlabel("Number of epochs")
         plt.ylabel("Accuracy")
-        plt.legend(handles=[p2, p3, p4, p5])#, bbox_to_anchor=(1.05, 1), loc='upper left')
+        plt.legend(handles=[p1, p2, p3, p4, p5])#, bbox_to_anchor=(1.05, 1), loc='upper left')
         pp.savefig(fig)
     pp.close()
