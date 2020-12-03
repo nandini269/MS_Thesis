@@ -335,8 +335,6 @@ def algorithm2_random(data_all, dname, network_name, batch_size, num_epochs, fil
         ensemble_vals.append(ens_acc)
         test_acc = get_ensemble_preds(ensemble, testloader,"test")
         test_accs.append(test_acc)
-    test_acc = get_ensemble_preds(ensemble, testloader,"test")
-    test_accs.append(test_acc)
     data_prop = (len(data_inds)+subsample_size)/len(train)*100
     print(test_acc)
     print("data percentage used",data_prop)
