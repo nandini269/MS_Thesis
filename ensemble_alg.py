@@ -44,8 +44,8 @@ def test(testloader, net):
                 label = labels[i]
                 class_correct[label] += c[i].item()
                 class_total[label] += 1
-    print('Accuracy of the network on the validation set: %d %%' % (
-        100 * correct / total))
+    # print('Accuracy of the network on the validation set: %d %%' % (
+        # 100 * correct / total))
     return (correct/total)
     # classes = ('plane', 'car', 'bird', 'cat',
     #            'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
@@ -91,7 +91,8 @@ def train_and_eval_model(network_name, dataset, trainloader, valloader, batch_si
 
     print('Finished Training '+network_name)
     val_loss = test(valloader, net)
-    return net, val_loss
+    train_loss = test(trainloader, net)
+    return net, val_loss, train_loss
     # print('Testing ' + network_name)
     # test(testloader, net)
 
@@ -129,40 +130,8 @@ def get_ensemble_preds(ensemble, dataloader, test_or_val):
     print("Accuracy of the ensemble on the {} images: {}".format(test_or_val,100*correct/total))
     return (correct/total)
 
-# def get_poor_subset_og(ensemble, trainloader, train, batch_size, cap_size):
-#     # Take subset of points poorly predicted poor_subset
-#     poor_subsets = []
-#     indices = []
-#     with torch.no_grad():
-#         for i,data in enumerate(trainloader):  # per batch_size
-#             inds = torch.arange(i*batch_size,i*batch_size+data[1].shape[0])
-#             predicteds = []
-#             images, labels = data[0].cuda(), data[1].cuda()
-#             for model in ensemble:
-#                 outputs = model(images)
-#                 _, predicted = torch.max(outputs.data, 1)  # get median predicted
-#                 predicteds.append(predicted)
-#             predicteds = torch.stack(predicteds, dim = 1)
-#             # print(len(ensemble),predicteds.shape)
-#             predicted_modes, mode_inds = torch.mode(predicteds)
-#             # if i==3:
-#             #     print("predicted modes:",predicted_modes)
-#             #     print("true labels:",labels)
-#             #     print("predicted modes shape",predicted_modes.shape )
-#             poor_subsets.extend(images[predicted_modes!=labels])
-#             indices.extend(inds[predicted_modes!=labels])
-#             # print(poor_subset.shape)
-#             # poor_subsets.append(poor_subset)
-#         print("num images in poor subset: ",len(poor_subsets))
-#     if len(indices)>cap_size:
-#         indices = indices[:cap_size]
-#     subset = torch.utils.data.Subset(train, indices)
-#     # check_distribution(dataset,top_help_list)
-#     poor_loader = torch.utils.data.DataLoader(subset, shuffle=True, batch_size=batch_size, num_workers=1)
-#     # poor_loader = torch.utils.data.DataLoader(poor_subsets, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
-#     return poor_loader, indices
 
-def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
+def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size, num_classes):
     # Take subset of points poorly predicted poor_subset
     indices = []
     labels = []  # maybe keep half of previous indices?
@@ -192,14 +161,18 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size):
         # print("indices areeeeee:",indices)
         print("labels areeeeee:", Counter(labels))
 
-    min_l = 99999
+
+    val_lens = []
     for l in l_d:
-        if len(l_d[l])<min_l:
-            min_l = len(l_d[l])
+        val_lens.append(len(l_d[l]))
+    sorted_lens = np.sort(val_lens)
+    mid_len = sorted_lens[np.ciel((len(sorted_lens)-1)/2)]
     # balance datasets
-    for l in l_d:
-        if len(l_d)!=1:
-            indices.extend(np.random.choice(l_d[l],min_l))
+    for l in range(num_classes):
+        if l in l_d:
+            indices.extend(np.random.choice(l_d[l],mid_len))
+        else:
+            indices.extend(np.random.choice(np.arange(len(train)),mid_len))
     if len(indices)<cap_size/2:
         indices.extend(np.random.choice(np.arange(len(train)),round(0.6*cap_size)))
     print("num images in poor subset: ",len(indices))
@@ -281,9 +254,13 @@ def algorithm_random(data_all, dname, network_names, batch_size, num_epochs, fil
     train, val, trainloader,valloader,testloader = data_all # get_dataset(batch_size, dname, filtered) # get_mnist(batch_size)
     subsample_size = round(len(train)/len(network_names)) # round(0.1*len(train))
     ensemble = {}
+    if dname == "cifar10" and filtered==True:
+        num_classes = 2
+    else:
+        num_classes = 10
     train_sub, _ = torch.utils.data.random_split(train,[subsample_size,len(train)-subsample_size])
     tr_sub_ld = torch.utils.data.DataLoader(train_sub, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
-    model, val_loss = train_and_eval_model(network_names[0], dname, tr_sub_ld, valloader, batch_size, num_epochs) # don't use full dataset
+    model, val_loss, train_loss = train_and_eval_model(network_names[0], dname, tr_sub_ld, valloader, batch_size, num_epochs) # don't use full dataset
     ensemble[model] = val_loss
     ensemble_vals = [val_loss]
     val_losses = [val_loss]
@@ -293,9 +270,9 @@ def algorithm_random(data_all, dname, network_names, batch_size, num_epochs, fil
     data_inds = set()
     for network_name in network_names[1:]:
         # network_name = np.random.choice(network_names)
-        poor_subset_loader, indices = get_poor_subset(ensemble, trainloader, train, batch_size, subsample_size)
+        poor_subset_loader, indices = get_poor_subset(ensemble, trainloader, train, batch_size, subsample_size, num_classes)
         # print(indices)
-        model, val_loss = train_and_eval_model(network_name, dname, poor_subset_loader, valloader, batch_size, num_epochs)
+        model, val_loss, train_loss = train_and_eval_model(network_name, dname, poor_subset_loader, valloader, batch_size, num_epochs)
         ens_acc = get_ensemble_preds(ensemble, valloader,"validation")
         data_inds.update(indices)
         # models.append(model)
@@ -315,22 +292,28 @@ def algorithm2_random(data_all, dname, network_name, batch_size, num_epochs, fil
     train, val, trainloader,valloader,testloader = data_all # get_dataset(batch_size, dname, filtered) # get_mnist(batch_size)
     subsample_size = round(len(train)/5) # 5 iterations in total
     ensemble = {}
+    if dname == "cifar10" and filtered==True:
+        num_classes = 2
+    else:
+        num_classes = 10
     # set seed
     train_sub, _ = torch.utils.data.random_split(train,[subsample_size,len(train)-subsample_size])
     tr_sub_ld = torch.utils.data.DataLoader(train_sub, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
-    model, val_loss = train_and_eval_model(network_name, dname, tr_sub_ld, valloader, batch_size, num_epochs) # don't use full dataset
+    model, val_loss, train_loss = train_and_eval_model(network_name, dname, tr_sub_ld, valloader, batch_size, num_epochs) # don't use full dataset
     ensemble[model] = val_loss
     ensemble_vals = [val_loss]
     val_losses = [val_loss]
+    train_losses = [train_loss]
     test_acc = get_ensemble_preds(ensemble, testloader,"test")
     test_accs = [test_acc]
     data_inds = []
     for i in range(4):
-        poor_subset_loader, indices = get_poor_subset(ensemble, trainloader, train, batch_size, subsample_size)
-        model, val_loss = train_and_eval_model(network_name, dname, poor_subset_loader, valloader, batch_size, num_epochs, trained_model = model)
+        poor_subset_loader, indices = get_poor_subset(ensemble, trainloader, train, batch_size, subsample_size, num_classes)
+        model, val_loss, train_loss = train_and_eval_model(network_name, dname, poor_subset_loader, valloader, batch_size, num_epochs, trained_model = model)
         ens_acc = get_ensemble_preds(ensemble, valloader,"validation")
         data_inds.extend(indices)
         val_losses.append(val_loss)   # do we want to pick or weigh based on val_loss?
+        train_losses.append(train_loss)
         ensemble[model] = val_loss
         ensemble_vals.append(ens_acc)
         test_acc = get_ensemble_preds(ensemble, testloader,"test")
@@ -338,7 +321,7 @@ def algorithm2_random(data_all, dname, network_name, batch_size, num_epochs, fil
     data_prop = (len(data_inds)+subsample_size)/len(train)*100
     print(test_acc)
     print("data percentage used",data_prop)
-    return val_losses, ensemble_vals, test_accs, data_prop
+    return train_losses, val_losses, ensemble_vals, test_accs, data_prop
 
 def baseline1(data_all, dname, network_names, batch_size, num_epochs, filtered):
     print("Baseline 1 results")
@@ -346,12 +329,12 @@ def baseline1(data_all, dname, network_names, batch_size, num_epochs, filtered):
     # num_epochs = 20
     train, val, trainloader,valloader,testloader = data_all #get_dataset(batch_size, dname, filtered) #get_mnist(batch_size)
     network_name = np.random.choice(network_names)
-    model, val_loss = train_and_eval_model(network_name, dname, trainloader, valloader, batch_size, 5)
+    model, val_loss, train_loss = train_and_eval_model(network_name, dname, trainloader, valloader, batch_size, 5)
     test_loss = test(testloader, model)
     val_losses = [val_loss]
     test_losses = [test_loss]
     for i in range(4):
-        model, val_loss = train_and_eval_model(network_name, dname, trainloader, valloader, batch_size, 5, trained_model = model)
+        model, val_loss, train_loss = train_and_eval_model(network_name, dname, trainloader, valloader, batch_size, 5, trained_model = model)
         val_losses.append(val_loss)
         test_loss = test(testloader, model)
         test_losses.append(test_loss)
@@ -364,18 +347,20 @@ def baseline2(data_all, dname, network_name, batch_size, num_epochs, filtered): 
     # network_names = ["vgg11", "vgg13", "lenet","resnet18", "resnet34"]#"mlp"] # use mlp just for mnist
     # num_epochs = 20
     train, val, trainloader,valloader,testloader = data_all #get_dataset(batch_size, dname, filtered)
-    model, val_loss = train_and_eval_model(network_name, dname, trainloader, valloader, batch_size, num_epochs)
+    model, val_loss, train_loss = train_and_eval_model(network_name, dname, trainloader, valloader, batch_size, num_epochs)
     test_loss = test(testloader, model)
     val_losses = [val_loss]
     test_losses = [test_loss]
+    train_losses = [train_loss]
     for i in range(4):
-        model, val_loss = train_and_eval_model(network_name, dname, trainloader, valloader, batch_size, num_epochs, trained_model = model)
+        model, val_loss, train_loss = train_and_eval_model(network_name, dname, trainloader, valloader, batch_size, num_epochs, trained_model = model)
         val_losses.append(val_loss)
+        train_losses.append(train_loss)
         test_loss = test(testloader, model)
         test_losses.append(test_loss)
     print("val loss:", val_loss)
     print("test loss:", test_losses[-1])
-    return val_losses, test_losses
+    return train_losses, val_losses, test_losses
 
 if __name__ == '__main__':
     filtered = True
@@ -389,20 +374,22 @@ if __name__ == '__main__':
     network_names = ["vgg11", "lenet","vgg13","resnet18", "resnet34"]
     for i in range(3):  #need to plot means?
         network_name = np.random.choice(network_names)
-        vals, ensemble_vals, e_tests, data_prop =  algorithm2_random(data_all, dname, network_name, batch_size, num_epochs, filtered)
-        b_vals, b_tests = baseline2(data_all, dname, network_name, batch_size, num_epochs, filtered)
+        e_trains, vals, ensemble_vals, e_tests, data_prop =  algorithm2_random(data_all, dname, network_name, batch_size, num_epochs, filtered)
+        b_trains, b_vals, b_tests = baseline2(data_all, dname, network_name, batch_size, num_epochs, filtered)
         # plot it
         fig = plt.figure()
-        xs = np.arange(len(vals))
-        p1, = plt.plot(xs, vals, 'bo', label = 'model val acc') # ind member val acc
-        p2, = plt.plot(xs, ensemble_vals,'-r', linewidth = 2, label = 'ensemble val acc') # ensemble validation acc
-        p3, = plt.plot(xs, b_vals, '-c', linewidth = 2, label = 'baseline val acc') # make style same as above
-        p4, = plt.plot(xs, b_tests, linestyle='dashdot', color = 'c', label = 'baseline test acc') #
+        xs = (np.arange(len(vals))+1)*5
+        p1, = plt.plot(xs, vals, '-r', linewidth = 2, label = 'model val acc') # ind member val acc
+        p2, = plt.plot(xs, e_trains,'ro', linewidth = 2, label = 'model train acc') # ensemble validation acc
         p5, = plt.plot(xs, e_tests, linestyle='dashdot', color = 'r', label = 'ensemble test acc')
+        p3, = plt.plot(xs, b_vals, '-c', linewidth = 2, label = 'baseline val acc') # make style same as above
+        p6, = plt.plot(xs, b_trains,'co', linewidth = 2, label = 'baseline train acc')
+        p4, = plt.plot(xs, b_tests, linestyle='dashdot', color = 'c', label = 'baseline test acc') #
         plt.title("Dataset:{} using {} percent and model:{}".format(dname,round(data_prop),network_name))
         # plt.xticks(xs,network_names)
         plt.xlabel("Number of epochs")
         plt.ylabel("Accuracy")
-        plt.legend(handles=[p1, p3, p4, p2, p5])#, bbox_to_anchor=(1.05, 1), loc='upper left')
+        plt.legend(handles=[p1, p3, p4, p2, p5, p6])#, bbox_to_anchor=(1.05, 1), loc='upper left')
         pp.savefig(fig)
     pp.close()
+    # add bash script with all three experiments fed in
