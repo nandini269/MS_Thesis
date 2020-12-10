@@ -365,7 +365,7 @@ def baseline2(data_all, dname, network_name, batch_size, num_epochs, filtered): 
 
 parser = OptionParser()
 parser.add_option("-d", "--dataset", type = "string", dest="dname", default = "cifar10")
-parser.add_option("-f", "--filtered", type = "bool", dest="filtered", default = True)
+parser.add_option("-f", "--filtered", dest="filtered", default = True)
 parser.add_option("-i", "--num_iters", type = "int", dest="num_iters", default=5)
 parser.add_option("-e", "--num_epochs", type = "int", dest="num_epochs", default=5)                        # change back
 opts,args = parser.parse_args()
