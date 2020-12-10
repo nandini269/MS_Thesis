@@ -370,10 +370,10 @@ def baseline2(data_all, dname, network_name, batch_size, num_epochs, filtered): 
     return train_losses, val_losses, test_losses
 
 parser = OptionParser()
-parser.add_option("-d", "--dataset", type = "string", dest="dname", default = "cifar10")
-parser.add_option("-f", "--filtered", dest="filtered", default = True)
+parser.add_option("-d", "--dataset", type = "string", dest="dname", default = "mnist")
+parser.add_option("-f", "--filtered", dest="filtered", default = False)
 parser.add_option("-i", "--num_iters", type = "int", dest="num_iters", default=5)
-parser.add_option("-e", "--num_epochs", type = "int", dest="num_epochs", default=5)                        # change back
+parser.add_option("-e", "--num_epochs", type = "int", dest="num_epochs", default=4)                        # change back
 opts,args = parser.parse_args()
 
 if __name__ == '__main__':
@@ -383,7 +383,7 @@ if __name__ == '__main__':
     num_iters = opts.num_iters # add argument
     dname = opts.dname
     data_all = get_dataset(batch_size, dname, filtered)
-    pp = PdfPages('iref_'+dname+'_'+str(filtered)+'_'+str(num_epochs)+'2.pdf')
+    pp = PdfPages('iref_'+dname+'_'+str(filtered)+'_'+str(num_epochs)+'_2.pdf')
     network_names_mnist = ["vgg11","vgg13","resnet18", "resnet34","mlp"] # use mlp just for mnist
     network_names = ["vgg11", "lenet","vgg13","resnet18", "resnet34"]
     for i in range(3):  #need to plot means?
@@ -395,7 +395,7 @@ if __name__ == '__main__':
         xs = (np.arange(len(vals))+1)*5
         p1, = plt.plot(xs, vals, '-r', linewidth = 2, label = 'model val acc') # ind member val acc
         p2, = plt.plot(xs, e_trains,'ro', linewidth = 2, label = 'model train acc') # ensemble validation acc
-        p5, = plt.plot(xs, e_tests, linestyle='dashdot', color = 'r', label = 'ensemble test acc')
+        p5, = plt.plot(xs, e_tests, linestyle='dashdot', color = 'r', label = 'model test acc')
         p3, = plt.plot(xs, b_vals, '-c', linewidth = 2, label = 'baseline val acc') # make style same as above
         p6, = plt.plot(xs, b_trains,'co', linewidth = 2, label = 'baseline train acc')
         p4, = plt.plot(xs, b_tests, linestyle='dashdot', color = 'c', label = 'baseline test acc') #
