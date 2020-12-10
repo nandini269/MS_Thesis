@@ -134,6 +134,7 @@ def get_ensemble_preds(ensemble, dataloader, test_or_val):
 
 def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size, num_classes):
     # Take subset of points poorly predicted poor_subset
+    corr_inds = {}
     indices = []
     labels = []  # maybe keep half of previous indices?
     with torch.no_grad():
@@ -153,12 +154,16 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size, num_clas
             #     print("true label:",label)
             #     print("predicteds",predicteds)
             if predicted_mode!= label:
-                # indices.append(i)
                 labels.append(label)
                 if label in l_d:
                     l_d[label].append(i)
                 else:
                     l_d[label] = [i]
+            else:
+                if label in corr_inds:
+                    corr_inds[label].append(i)
+                else:
+                    corr_inds[label] = [i]
         # print("indices areeeeee:",indices)
         print("labels areeeeee:", Counter(labels))
 
@@ -167,6 +172,9 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size, num_clas
     for l in l_d:
         val_lens.append(len(l_d[l]))
     sorted_lens = np.sort(val_lens)
+    # if len(val_lens) == 1:
+    #     for l in range(num_classes):
+    #         if l in
     mid_i = round(len(sorted_lens)/2)
     mid_len = sorted_lens[mid_i]
     # balance datasets
@@ -174,7 +182,7 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size, num_clas
         if l in l_d:
             indices.extend(np.random.choice(l_d[l],mid_len))
         else:
-            indices.extend(np.random.choice(np.arange(len(train)),mid_len))
+            indices.extend(np.random.choice(corr_inds[l]),mid_len))
     if len(indices)<cap_size/2:
         indices.extend(np.random.choice(np.arange(len(train)),round(0.6*cap_size)))
     print("num images in poor subset: ",len(indices))
