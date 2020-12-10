@@ -16,6 +16,7 @@ import numpy as np
 import random
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
+from optparse import OptionParser
 
 # from multiprocessing import set_start_method
 # try:
@@ -166,7 +167,7 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size, num_clas
     for l in l_d:
         val_lens.append(len(l_d[l]))
     sorted_lens = np.sort(val_lens)
-    mid_len = sorted_lens[np.ciel((len(sorted_lens)-1)/2)]
+    mid_len = sorted_lens[np.ceil((len(sorted_lens)-1)/2)]
     # balance datasets
     for l in range(num_classes):
         if l in l_d:
@@ -362,12 +363,19 @@ def baseline2(data_all, dname, network_name, batch_size, num_epochs, filtered): 
     print("test loss:", test_losses[-1])
     return train_losses, val_losses, test_losses
 
+parser = OptionParser()
+parser.add_option("-d", "--dataset", type = "string", dest="dname", default = "cifar10")
+parser.add_option("-f", "--filtered", type = "bool", dest="filtered", default = True)
+parser.add_option("-i", "--num_iters", type = "int", dest="num_iters", default=5)
+parser.add_option("-e", "--num_epochs", type = "int", dest="num_epochs", default=5)                        # change back
+opts,args = parser.parse_args()
+
 if __name__ == '__main__':
-    filtered = True
+    filtered = opts.filtered
     batch_size = 128
-    num_epochs = 5 # 15
-    num_iters = 5 # add argument
-    dname = "cifar10"
+    num_epochs = opts.num_epochs # 15
+    num_iters = opts.num_iters # add argument
+    dname = opts.dname
     data_all = get_dataset(batch_size, dname, filtered)
     pp = PdfPages('iref_'+dname+'_'+str(filtered)+'_'+str(num_epochs)+'2.pdf')
     network_names_mnist = ["vgg11","vgg13","resnet18", "resnet34","mlp"] # use mlp just for mnist
