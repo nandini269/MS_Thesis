@@ -369,7 +369,7 @@ if __name__ == '__main__':
     num_iters = 5 # add argument
     dname = "cifar10"
     data_all = get_dataset(batch_size, dname, filtered)
-    pp = PdfPages('iref_'+dname+'_'+str(filtered)+'_'+str(num_epochs)+'.pdf')
+    pp = PdfPages('iref_'+dname+'_'+str(filtered)+'_'+str(num_epochs)+'2.pdf')
     network_names_mnist = ["vgg11","vgg13","resnet18", "resnet34","mlp"] # use mlp just for mnist
     network_names = ["vgg11", "lenet","vgg13","resnet18", "resnet34"]
     for i in range(3):  #need to plot means?
