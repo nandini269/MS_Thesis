@@ -80,6 +80,7 @@ def train_and_eval_model(network_name, dataset, trainloader, valloader, batch_si
             # forward + backward + optimize
             outputs = net(inputs)
             loss = criterion(outputs, labels)
+            print(epoch,loss)
             loss.backward()
             optimizer.step()
 
@@ -172,7 +173,7 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size, num_clas
     for l in l_d:
         val_lens.append(len(l_d[l]))
     sorted_lens = np.sort(val_lens)
-    mid_i = round(len(sorted_lens)/2)  # can use np.median
+    mid_i = np.median(sorted_lens) #round(len(sorted_lens)/2)  # can use np.median
     print("sorted lens of poor subset",sorted_lens)
     mid_len = sorted_lens[mid_i]
     # balance datasets
@@ -299,7 +300,7 @@ def algorithm_random(data_all, dname, network_names, batch_size, num_epochs, fil
 
 def algorithm2_random(data_all, dname, network_name, batch_size, num_epochs, filtered=True): # Uses same model
     train, val, trainloader,valloader,testloader = data_all # get_dataset(batch_size, dname, filtered) # get_mnist(batch_size)
-    subsample_size = round(len(train)/5) # 5 iterations in total
+    subsample_size = round(len(train)/5) # 5 iterations in total 7500/5 = 1500
     ensemble = {}
     if dname == "cifar10" and filtered==True:
         num_classes = 2
@@ -387,9 +388,9 @@ if __name__ == '__main__':
     data_all = get_dataset(batch_size, dname, filtered)
     pp = PdfPages('iref_'+dname+'_'+str(filtered)+'_'+str(num_epochs)+'_2.pdf')
     network_names_mnist = ["vgg11","vgg13","resnet18", "resnet34","mlp"] # use mlp just for mnist
-    network_names = ["vgg11", "lenet","vgg13","resnet18", "resnet34"]
+    network_names = ["vgg11","vgg13","resnet18", "resnet34"]
     for i in range(3):  #need to plot means?
-        network_name = np.random.choice(network_names)
+        network_name = "resnet18"#np.random.choice(network_names)
         e_trains, vals, ensemble_vals, e_tests, data_prop =  algorithm2_random(data_all, dname, network_name, batch_size, num_epochs, filtered)
         b_trains, b_vals, b_tests = baseline2(data_all, dname, network_name, batch_size, num_epochs, filtered)
         # plot it
