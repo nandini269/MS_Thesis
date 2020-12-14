@@ -172,21 +172,23 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size, num_clas
     for l in l_d:
         val_lens.append(len(l_d[l]))
     sorted_lens = np.sort(val_lens)
-    mid_i = round(len(sorted_lens)/2)
+    mid_i = round(len(sorted_lens)/2)  # can use np.median
+    print("sorted lens of poor subset",sorted_lens)
     mid_len = sorted_lens[mid_i]
     # balance datasets
     for l in range(num_classes):
-        if l in l_d:
+        if l in l_d:  # l_d: label -> list of indices of wrongly predicted images
             indices.extend(np.random.choice(l_d[l],mid_len))
         else:
             indices.extend(np.random.choice(corr_inds[l],mid_len))
+    print("mid_len:",mid_len)
     if len(indices)<cap_size/2:
         indices.extend(np.random.choice(np.arange(len(train)),round(0.6*cap_size)))
-    print("num images in poor subset: ",len(indices))
     if len(indices)>cap_size:
         indices = np.random.choice(indices, cap_size)
     subset = torch.utils.data.Subset(train, indices)
     # check_distribution(dataset,top_help_list)
+    print("num images in poor subset: ",len(indices))
     poor_loader = torch.utils.data.DataLoader(subset, shuffle=True, batch_size=batch_size, num_workers=1)
     return poor_loader, indices
 
@@ -370,8 +372,8 @@ def baseline2(data_all, dname, network_name, batch_size, num_epochs, filtered): 
     return train_losses, val_losses, test_losses
 
 parser = OptionParser()
-parser.add_option("-d", "--dataset", type = "string", dest="dname", default = "mnist")
-parser.add_option("-f", "--filtered", dest="filtered", default = False)
+parser.add_option("-d", "--dataset", type = "string", dest="dname", default = "cifar10")
+parser.add_option("-f", "--filtered", dest="filtered", default = True)
 parser.add_option("-i", "--num_iters", type = "int", dest="num_iters", default=5)
 parser.add_option("-e", "--num_epochs", type = "int", dest="num_epochs", default=4)                        # change back
 opts,args = parser.parse_args()
