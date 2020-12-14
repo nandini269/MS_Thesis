@@ -173,8 +173,10 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size, num_clas
     for l in l_d:
         val_lens.append(len(l_d[l]))
     sorted_lens = np.sort(val_lens)
-    mid_len = round(np.median(sorted_lens)) #round(len(sorted_lens)/2)  # can use np.median
+    mid_len = int(round(np.median(sorted_lens)))
+
     print("sorted lens of poor subset",sorted_lens)
+    # mid_i = round(len(sorted_lens)/2)  # can use np.median
     # mid_len = sorted_lens[mid_i]
     # balance datasets
     for l in range(num_classes):
