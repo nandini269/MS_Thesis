@@ -378,7 +378,7 @@ parser = OptionParser()
 parser.add_option("-d", "--dataset", type = "string", dest="dname", default = "cifar10")
 parser.add_option("-f", "--filtered", dest="filtered", default = False)
 parser.add_option("-i", "--num_iters", type = "int", dest="num_iters", default=5)
-parser.add_option("-e", "--num_epochs", type = "int", dest="num_epochs", default=4)                        # change back
+parser.add_option("-e", "--num_epochs", type = "int", dest="num_epochs", default=6)                        # change back
 opts,args = parser.parse_args()
 
 if __name__ == '__main__':
