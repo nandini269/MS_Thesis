@@ -353,7 +353,7 @@ def baseline2(data_all, dname, network_name, batch_size, num_epochs, filtered): 
 
 
 if __name__ == '__main__':
-    # filtered = opts.filtered
+    filtered = opts.filtered
     print(type(filtered))
     batch_size = 128
     num_epochs = opts.num_epochs # 15
