@@ -24,7 +24,7 @@ parser.add_option("-d", "--dataset", type = "string", dest="dname", default = "c
 parser.add_option("-f", "--filtered", dest="filtered", default = False)
 parser.add_option("-i", "--num_iters", type = "int", dest="num_iters", default=5)
 parser.add_option("-e", "--num_epochs", type = "int", dest="num_epochs", default=6)                        # change back
-parser.add_option("-e", "--num_classes", type = "int", dest="num_classes", default=10)
+parser.add_option("-c", "--num_classes", type = "int", dest="num_classes", default=10)
 
 opts,args = parser.parse_args()
 
