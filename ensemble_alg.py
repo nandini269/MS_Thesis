@@ -18,11 +18,15 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from optparse import OptionParser
 
-# from multiprocessing import set_start_method
-# try:
-#     set_start_method('spawn')
-# except RuntimeError:
-#     pass
+
+parser = OptionParser()
+parser.add_option("-d", "--dataset", type = "string", dest="dname", default = "cifar10")
+parser.add_option("-f", "--filtered", dest="filtered", default = False)
+parser.add_option("-i", "--num_iters", type = "int", dest="num_iters", default=5)
+parser.add_option("-e", "--num_epochs", type = "int", dest="num_epochs", default=6)                        # change back
+parser.add_option("-e", "--num_classes", type = "int", dest="num_classes", default=10)
+
+opts,args = parser.parse_args()
 
 # Prints per class test accuracy
 def test(testloader, net):
@@ -394,15 +398,10 @@ def baseline2(data_all, dname, network_name, batch_size, num_epochs, filtered): 
     print("test loss:", test_losses[-1])
     return train_losses, val_losses, test_losses
 
-parser = OptionParser()
-parser.add_option("-d", "--dataset", type = "string", dest="dname", default = "cifar10")
-parser.add_option("-f", "--filtered", dest="filtered", default = False)
-parser.add_option("-i", "--num_iters", type = "int", dest="num_iters", default=5)
-parser.add_option("-e", "--num_epochs", type = "int", dest="num_epochs", default=6)                        # change back
-opts,args = parser.parse_args()
 
 if __name__ == '__main__':
     filtered = opts.filtered
+    print(filtered)
     batch_size = 128
     num_epochs = opts.num_epochs # 15
     num_iters = opts.num_iters # add argument
