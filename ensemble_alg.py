@@ -300,7 +300,8 @@ def algorithm2_random(data_all, dname, network_name, batch_size, num_epochs, fil
     train, val, trainloader,valloader,testloader = data_all # get_dataset(batch_size, dname, filtered) # get_mnist(batch_size)
     subsample_size = round(len(train)/opts.num_iters) # 5 iterations in total 7500/5 = 1500
     ensemble = {}
-    if dname == "cifar10" and filtered==True:
+    if filtered==True:
+        print("Filtered is TRUE")
         num_classes = 2
     else:
         num_classes = 10
