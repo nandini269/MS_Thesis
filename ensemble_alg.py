@@ -304,12 +304,7 @@ def algorithm2_random(data_all, dname, network_name, batch_size, num_epochs, fil
     train, val, trainloader,valloader,testloader = data_all # get_dataset(batch_size, dname, filtered) # get_mnist(batch_size)
     subsample_size = round(len(train)/opts.num_iters) # 5 iterations in total 7500/5 = 1500
     ensemble = {}
-    print("filtereddddddd",filtered)
-    if filtered==True:
-        print("Filtered is TRUE")
-        num_classes = 2
-    else:
-        num_classes = 10
+    num_classes = opts.num_classes
     # set seed
     train_sub, _ = torch.utils.data.random_split(train,[subsample_size,len(train)-subsample_size])
     tr_sub_ld = torch.utils.data.DataLoader(train_sub, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
