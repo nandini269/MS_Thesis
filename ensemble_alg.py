@@ -177,7 +177,11 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size, num_clas
     # print("number of classes",num_classes)
     for l in range(num_classes):
         if l in l_d:  # l_d: label -> list of indices of wrongly predicted images
-            indices.extend(np.random.choice(l_d[l],mid_len))
+            # indices.extend(np.random.choice(l_d[l],mid_len))
+            indices.extend(l_d[l])
+            diff = mid_len-len(l_d[l])
+            if diff>0:
+                indices.extend(np.random.choice(corr_inds[l],diff))
         else:
             indices.extend(np.random.choice(corr_inds[l],mid_len))
     print("mid_len:",mid_len)
@@ -272,12 +276,12 @@ def algorithm2_random(data_all, dname, network_name, batch_size, num_epochs, fil
     train_losses = [train_loss]
     test_acc = get_ensemble_preds(ensemble, testloader,"test")
     test_accs = [test_acc]
-    data_inds = []
+    data_inds = set()
     for i in range(opts.num_iters):
         poor_subset_loader, indices = get_poor_subset(ensemble, trainloader, train, batch_size, subsample_size, num_classes)
         model, val_loss, train_loss = train_and_eval_model(network_name, dname, poor_subset_loader, valloader, batch_size, num_epochs, trained_model = model)
         ens_acc = get_ensemble_preds(ensemble, valloader,"validation")
-        data_inds.extend(indices)
+        data_inds.update(indices)
         val_losses.append(val_loss)   # do we want to pick or weigh based on val_loss?
         train_losses.append(train_loss)
         ensemble[model] = val_loss
@@ -319,7 +323,7 @@ def baseline3(data_all, dname, network_name, batch_size, num_epochs, filtered): 
     val_losses = [val_loss]
     test_losses = [test_loss]
     train_losses = [train_loss]
-    for i in range(opts.num_iters):
+    for i in range(opts.num_iters): # for each iteration
         train_sub, _ = torch.utils.data.random_split(train,[subsample_size,len(train)-subsample_size])
         tr_sub_ld = torch.utils.data.DataLoader(train_sub, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
         model, val_loss, train_loss = train_and_eval_model(network_name, dname, tr_sub_ld, valloader, batch_size, num_epochs, trained_model = model)
@@ -353,8 +357,8 @@ def baseline2(data_all, dname, network_name, batch_size, num_epochs, filtered): 
 
 
 if __name__ == '__main__':
-    filtered = opts.filtered
-    print(type(filtered))
+    # filtered = opts.filtered
+    # print(type(filtered))
     batch_size = 128
     num_epochs = opts.num_epochs # 15
     num_iters = opts.num_iters # add argument
@@ -364,27 +368,27 @@ if __name__ == '__main__':
     else:
         filtered = True
     data_all = get_dataset(batch_size, dname, filtered)
-    pp = PdfPages('iref_'+dname+'_'+str(filtered)+'_'+str(num_epochs)+'_3.pdf')
+    pp = PdfPages('iref_'+dname+'_'+str(filtered)+'_'+str(num_epochs)+'_4.pdf')
     network_names_mnist = ["vgg11","vgg13","resnet18", "resnet34","mlp"] # use mlp just for mnist
     network_names = ["vgg11","vgg13","resnet18", "resnet34"]
-    for i in range(3):  #need to plot means?
-        network_name = "resnet18"#np.random.choice(network_names)
+    for i in range(3):  # need to plot means?
+        network_name = np.random.choice(network_names)
         e_trains, vals, ensemble_vals, e_tests, data_prop =  algorithm2_random(data_all, dname, network_name, batch_size, num_epochs, filtered)
         b_trains, b_vals, b_tests = baseline3(data_all, dname, network_name, batch_size, num_epochs, filtered)
         # plot it
         fig = plt.figure()
         xs = (np.arange(len(vals))+1)*5
-        p1, = plt.plot(xs, vals, '-r', linewidth = 2, label = 'model val acc') # ind member val acc
-        p2, = plt.plot(xs, e_trains,'ro', linewidth = 2, label = 'model train acc') # ensemble validation acc
+        p3, = plt.plot(xs, vals, '-r', linewidth = 2, label = 'model val acc') # ind member val acc
+        p1, = plt.plot(xs, e_trains,'ro', linewidth = 2, label = 'model train acc') # ensemble validation acc
         p5, = plt.plot(xs, e_tests, linestyle='dashdot', color = 'r', label = 'model test acc')
-        p3, = plt.plot(xs, b_vals, '-c', linewidth = 2, label = 'baseline val acc') # make style same as above
-        p6, = plt.plot(xs, b_trains,'co', linewidth = 2, label = 'baseline train acc')
-        p4, = plt.plot(xs, b_tests, linestyle='dashdot', color = 'c', label = 'baseline test acc') #
+        p4, = plt.plot(xs, b_vals, '-c', linewidth = 2, label = 'baseline val acc') # make style same as above
+        p2, = plt.plot(xs, b_trains,'co', linewidth = 2, label = 'baseline train acc')
+        p6, = plt.plot(xs, b_tests, linestyle='dashdot', color = 'c', label = 'baseline test acc') #
         plt.title("Dataset:{} using {} percent and model:{}".format(dname,round(data_prop),network_name))
         # plt.xticks(xs,network_names)
         plt.xlabel("Number of epochs")
         plt.ylabel("Accuracy")
-        plt.legend(handles=[p1, p3, p4, p2, p5, p6])#, bbox_to_anchor=(1.05, 1), loc='upper left')
+        plt.legend(handles=[p1, p2, p3, p4, p5, p6])#, bbox_to_anchor=(1.05, 1), loc='upper left')
         pp.savefig(fig)
     pp.close()
     # add bash script with all three experiments fed in
