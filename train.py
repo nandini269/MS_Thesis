@@ -226,20 +226,20 @@ def test(testloader, net):
 def influence_dataset(network_names, dataset, trainloader, testloader, batch_size):
     super_trainloader = create_super_ds(network_names, trainloader, batch_size, "helpful")
     print("-------------- Training and Testing using max Inflence DS --------------")
-    train_models(network_names, "cifar_10", super_trainloader, testloader, batch_size)
+    train_models(network_names, dataset, super_trainloader, testloader, batch_size)
 
 
 def harmful_dataset(network_names, dataset, trainloader, testloader, batch_size):
     super_trainloader = create_super_ds(network_names, trainloader, batch_size, "harmful")
     print("-------------- Training and Testing using min influence DS --------------")
-    train_models(network_names, "cifar_10", super_trainloader, testloader, batch_size)
+    train_models(network_names, dataset, super_trainloader, testloader, batch_size)
 
 
 def baseline_dataset(network_names, dataset, trainloader, testloader, batch_size):
     # create function that tests accuracy on a randomly subsampled, well distributed dataset
     random_trainloader = create_random_ds(network_names, trainloader, batch_size)
     print("-------------- Training and Testing using Random DS --------------")
-    train_models(network_names, "cifar_10", random_trainloader, testloader, batch_size)
+    train_models(network_names, dataset, random_trainloader, testloader, batch_size)
 
 def full_dataset(network_names, dataset, trainloader, testloader, batch_size):
 
@@ -250,12 +250,14 @@ def full_dataset(network_names, dataset, trainloader, testloader, batch_size):
     # model.cuda()
     # trainloader, testloader = data_loader(model, dataset, batch_size)
     print("-------------- Training and Testing using Original DS --------------")
-    train_models(network_names, "cifar_10", trainloader, testloader, batch_size)
+    train_models(network_names, dataset, trainloader, testloader, batch_size)
 #---------------------------------------
 if __name__ == '__main__':
-    dataset = "mnist"               # run for for MNIST and store results in a csv or something
+    dataset1 = "mnist"               # run for for MNIST and store results in a csv or something
+    dataset = "cifar_10"
     batch_size = 128
-    network_names = ["resnet","mlp"]#["vgg", "lenet","resnet","mlp"] # use mlp just for mnist
+    network_names1 = ["resnet","mlp"] #["vgg", "lenet","resnet","mlp"] # use mlp just for mnist
+    network_names = ["vgg", "lenet","resnet"]
     model = network(network_names[0], dataset)
     model.cuda()  #dummy model j
     trainloader, testloader = data_loader(model, dataset, batch_size)
