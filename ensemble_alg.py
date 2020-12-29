@@ -187,7 +187,7 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size, num_clas
             indices.extend(np.random.choice(corr_inds[l],mid_len))
     print("mid_len:",mid_len)
     if len(indices)<cap_size:
-        indices.extend(np.random.choice(np.arange(len(train)),round(len(indices)-cap_size)))
+        indices.extend(np.random.choice(np.arange(len(train)),round(cap_size - len(indices))))
     if len(indices)>cap_size:
         indices = np.random.choice(indices, cap_size)
     subset = torch.utils.data.Subset(train, indices)
