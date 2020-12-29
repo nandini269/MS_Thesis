@@ -19,6 +19,12 @@ from torchvision.utils import make_grid
 import numpy as np
 import random
 from pytorch_influence_functions import pytorch_influence_functions as ptif
+import os
+import sys
+file_dir = pytorch_influence_functs
+sys.path.append(file_dir)
+from pytorch_influence_functions.calc_influence_function import *
+from pytorch_influence_functions.influence_function import *
 
 # Gets influence dictionary from saved json file in models folder
 def get_influences_from_json(network_name):
@@ -41,11 +47,14 @@ def run_influence_calc(network_names, dataset, trainloader, testloader, batch_si
         model = network(network_name, dataset)  #how to pick hyperparameters?
         model.cuda()
         # model.to(device).apply(init_weights)
-        ptif.init_logging()
-        config = ptif.get_default_config()
+        # ptif.init_logging()
+        init_logging()
+        # config = ptif.get_default_config()
+        config = get_default_config()
         config['outdir'] = dir_name
         config['gpu'] = 1
-        ptif.calc_img_wise(config, model, trainloader, testloader)
+        # ptif.calc_img_wise(config, model, trainloader, testloader)
+        calc_img_wise(config, model, trainloader, testloader)
 
 # def imshow(inp, title=None):
 #     """Imshow for Tensor."""
