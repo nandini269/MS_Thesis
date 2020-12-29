@@ -267,7 +267,7 @@ if __name__ == '__main__':
     dataset = "cifar_10"
     batch_size = 128
     network_names1 = ["resnet","mlp"] #["vgg", "lenet","resnet","mlp"] # use mlp just for mnist
-    network_names = ["vgg", "lenet","resnet"]
+    network_names = ["vgg11", "lenet","resnet18"]
     model = network(network_names[0], dataset)
     model.cuda()  #dummy model j
     trainloader, testloader = data_loader(model, dataset, batch_size)
