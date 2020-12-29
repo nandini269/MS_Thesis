@@ -432,6 +432,7 @@ def calc_img_wise(config, model, train_loader, test_loader):
     # calculate it evenly for the same number of samples from all classes.
     # `test_start_index` is `False` when it hasn't been set by the user. It can
     # also be set to `0`.
+    print("this is using my version")
     if test_sample_num and test_start_index is not False:
         test_dataset_iter_len = test_sample_num * config['num_classes']
         _, sample_list = get_dataset_sample_ids(test_sample_num, test_loader,

@@ -18,7 +18,7 @@ from torchvision.utils import make_grid
 # import matplotlib.pyplot as plt
 import numpy as np
 import random
-import pytorch_influence_functions as ptif
+from pytorch_influence_functions import pytorch_influence_functions as ptif
 
 # Gets influence dictionary from saved json file in models folder
 def get_influences_from_json(network_name):
@@ -74,7 +74,7 @@ def check_distribution(dataset, top_help_list):
         i = top_help_list[ind]
         labels.append(dataset[i][1])
         img_list.append(dataset[i][0])
-        if ind != 0 and (ind%500 == 0 or ind==len(top_help_list)-1): 
+        if ind != 0 and (ind%500 == 0 or ind==len(top_help_list)-1):
         # every 500 helpful indices are for one class for one model
         # there are 10 classes and 3 models
             per_model_class = labels[ind-500:ind]
@@ -127,7 +127,7 @@ def create_super_ds(network_names, trainloader, batch_size, helpful_or_harmful =
     # image = a[batch_num][0][batch_id]
     # label = a[batch_num][1][batch_id]
     # image = image.unsqueeze_(0)
-    
+
     # new_train_set = []
     # for i in range(1,len(helpful_l)):
     #     img_ind = helpful_l[i]
@@ -195,7 +195,7 @@ def load_model():
     net.cuda()
     return net
 
-# Prints per class test accuracy 
+# Prints per class test accuracy
 def test(testloader, net):
     correct = 0
     total = 0
@@ -242,9 +242,9 @@ def baseline_dataset(network_names, dataset, trainloader, testloader, batch_size
     train_models(network_names, "cifar_10", random_trainloader, testloader, batch_size)
 
 def full_dataset(network_names, dataset, trainloader, testloader, batch_size):
-    
-    # network_names = ["vgg", "lenet","resnet"] 
-    # # network_names = ["models/vgg", "models/lenet","models/resnet"] 
+
+    # network_names = ["vgg", "lenet","resnet"]
+    # # network_names = ["models/vgg", "models/lenet","models/resnet"]
     # # dataset = "cifar_10"
     # model = network(network_names[0], dataset)  #how to pick hyperparameters?
     # model.cuda()
@@ -259,12 +259,8 @@ if __name__ == '__main__':
     model = network(network_names[0], dataset)
     model.cuda()  #dummy model j
     trainloader, testloader = data_loader(model, dataset, batch_size)
-    run_influence_calc(network_names, dataset, trainloader, testloader, batch_size = batch_size) 
+    run_influence_calc(network_names, dataset, trainloader, testloader, batch_size = batch_size)
     # influence_dataset(network_names, dataset, trainloader, testloader, batch_size)
     # baseline_dataset(network_names, dataset, trainloader, testloader, batch_size) #add code to save results
     # harmful_dataset(network_names, dataset, trainloader, testloader, batch_size)
     # full_dataset(network_names, dataset, trainloader, testloader, batch_size)
-    
-
-
-

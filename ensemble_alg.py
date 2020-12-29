@@ -171,8 +171,8 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size, num_clas
     for l in l_d:
         val_lens.append(len(l_d[l]))
     sorted_lens = np.sort(val_lens)
-    mid_len = int(round(np.median(sorted_lens)))
-
+    # mid_len = int(round(np.median(sorted_lens)))
+    mid_len = sorted_lens[-1]
     # print("sorted lens of poor subset",sorted_lens)
     # print("number of classes",num_classes)
     for l in range(num_classes):
@@ -181,12 +181,13 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size, num_clas
             indices.extend(l_d[l])
             diff = mid_len-len(l_d[l])
             if diff>0:
+                print("adding correct inds")
                 indices.extend(np.random.choice(corr_inds[l],diff))
         else:
             indices.extend(np.random.choice(corr_inds[l],mid_len))
     print("mid_len:",mid_len)
     if len(indices)<cap_size/2:
-        indices.extend(np.random.choice(np.arange(len(train)),round(0.7*cap_size)))
+        indices.extend(np.random.choice(np.arange(len(train)),round(cap_size)))
     if len(indices)>cap_size:
         indices = np.random.choice(indices, cap_size)
     subset = torch.utils.data.Subset(train, indices)
@@ -263,7 +264,7 @@ def get_dataset(batch_size, dname, filtered):
 
 def algorithm2_random(data_all, dname, network_name, batch_size, num_epochs, filtered=True): # Uses same model
     train, val, trainloader,valloader,testloader = data_all # get_dataset(batch_size, dname, filtered) # get_mnist(batch_size)
-    subsample_size = round(len(train)/opts.num_iters) # 5 iterations in total 7500/5 = 1500
+    subsample_size = round(len(train)/3) # subsample_size = round(len(train)/opts.num_iters) # 5 iterations in total 7500/5 = 1500
     ensemble = {}
     num_classes = opts.num_classes
     # set seed
@@ -315,7 +316,7 @@ def algorithm2_random(data_all, dname, network_name, batch_size, num_epochs, fil
 def baseline3(data_all, dname, network_name, batch_size, num_epochs, filtered): #random subset
     print("Baseline 3 results")
     train, val, trainloader,valloader,testloader = data_all #get_dataset(batch_size, dname, filtered)
-    subsample_size = round(len(train)/opts.num_iters)
+    subsample_size = round(len(train)/3)#round(len(train)/opts.num_iters)
     train_sub, _ = torch.utils.data.random_split(train,[subsample_size,len(train)-subsample_size])
     tr_sub_ld = torch.utils.data.DataLoader(train_sub, shuffle=True, batch_size=batch_size, pin_memory=True, num_workers=1)
     model, val_loss, train_loss = train_and_eval_model(network_name, dname, tr_sub_ld, valloader, batch_size, num_epochs)
