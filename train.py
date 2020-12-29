@@ -21,7 +21,7 @@ import random
 from pytorch_influence_functions import pytorch_influence_functions as ptif
 import os
 import sys
-file_dir = pytorch_influence_functs
+file_dir = 'pytorch_influence_functs'
 sys.path.append(file_dir)
 from pytorch_influence_functions.calc_influence_function import *
 from pytorch_influence_functions.influence_function import *
