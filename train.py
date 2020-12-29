@@ -18,7 +18,7 @@ from torchvision.utils import make_grid
 # import matplotlib.pyplot as plt
 import numpy as np
 import random
-from pytorch_influence_functions import pytorch_influence_functions as ptif
+# from pytorch_influence_functions import pytorch_influence_functions as ptif
 # import os
 # import sys
 # file_dir = 'pytorch_influence_functs'

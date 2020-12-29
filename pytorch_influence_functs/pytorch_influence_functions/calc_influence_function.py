@@ -12,6 +12,7 @@ from pytorch_influence_functions.influence_function import s_test, grad_z
 from pytorch_influence_functions.utils import save_json, display_progress
 
 
+
 def calc_s_test(model, test_loader, train_loader, save=False, gpu=-1,
                 damp=0.01, scale=25, recursion_depth=5000, r=1, start=0):
     """Calculates s_test for the whole test dataset taking into account all
