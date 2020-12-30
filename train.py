@@ -94,7 +94,8 @@ def check_distribution(dataset, top_help_list):
             # show(make_grid(img_list, padding=100))
 
 # Creates a random trainloader for a randomly subsampled dataset. Size = 5000
-def create_random_ds(network_names, trainloader, batch_size, sub_size = 15000):
+def create_random_ds(network_names, train, trainloader, batch_size, sub_size = 15000):
+    #network_names, train, trainloader, batch_size
     transform_train = transforms.Compose(
         [transforms.RandomCrop(32, padding=4), transforms.RandomHorizontalFlip(), transforms.ToTensor(),
          transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)), ])
@@ -291,7 +292,7 @@ if __name__ == '__main__':
     model.cuda()  #dummy model j
     train, trainloader, testloader = data_loader(model, dataset, batch_size)
     # run_influence_calc(network_names, dataset, trainloader, testloader, batch_size = batch_size)
-    influence_dataset(network_names, dataset, train, trainloader, testloader, batch_size)
+    # influence_dataset(network_names, dataset, train, trainloader, testloader, batch_size)
     baseline_dataset(network_names, dataset, train, trainloader, testloader, batch_size) #add code to save results
     harmful_dataset(network_names, dataset, train, trainloader, testloader, batch_size)
     # full_dataset(network_names, dataset, train, trainloader, testloader, batch_size)
