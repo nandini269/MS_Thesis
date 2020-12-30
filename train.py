@@ -29,7 +29,7 @@ import pytorch_influence_functs.pytorch_influence_functions as ptif
 
 # Gets influence dictionary from saved json file in models folder
 def get_influences_from_json(network_name):
-    path = "models/"+network_name + '/' + "influence_results_0_1.json"
+    path = "cifar_10_influence_/"+network_name + "/influence_results_0_1.json"
     d = json.load(open(path))
     return d
 
