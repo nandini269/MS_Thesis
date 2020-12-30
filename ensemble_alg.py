@@ -181,7 +181,7 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size, num_clas
             indices.extend(l_d[l])
             diff = mid_len-len(l_d[l])
             if diff>0:
-                print("adding correct inds")
+                # print("adding correct inds")
                 indices.extend(np.random.choice(corr_inds[l],diff))
         else:
             indices.extend(np.random.choice(corr_inds[l],mid_len))

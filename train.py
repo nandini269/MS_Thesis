@@ -99,7 +99,8 @@ def create_random_ds(network_names, trainloader, batch_size, sub_size = 15000):
         [transforms.RandomCrop(32, padding=4), transforms.RandomHorizontalFlip(), transforms.ToTensor(),
          transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)), ])
     dataset = datasets.CIFAR10(root=data_loc, train=True, download=True, transform=transform_train)
-    subset = torch.utils.data.Subset(dataset, np.arange(sub_size))
+    rand_inds = np.random.choice(np.arange(len(dataset)),sub_size)
+    subset = torch.utils.data.Subset(dataset, rand_inds)
     random_trainloader = torch.utils.data.DataLoader(subset, shuffle=False, batch_size=batch_size, num_workers=1)
     return random_trainloader
 
@@ -107,16 +108,33 @@ def create_random_ds(network_names, trainloader, batch_size, sub_size = 15000):
 # Creates a trainloader for the "super dataset." The super dataset comprises of the 500 most helpful images
 # per class per model. (Since we have 3 models and 10 classes this dataset is 3 * 10 * 500)
 # TODO: Must check that there is no randomization that is disturbing the indexing
-def create_super_ds(network_names, trainloader, batch_size, helpful_or_harmful = "helpful"):
+def create_super_ds(network_names, train, trainloader, batch_size, helpful_or_harmful = "helpful"):
     top_help_set = set()
     top_help_list = []
+    idx_to_label = {}
+    for i,data in enumerate(train):
+        image, label = data[0].cuda(), data[1]
+        idx_to_label[i] = label
     for network_name in network_names:
         influence_d = get_influences_from_json(network_name)
         for i in range(10):
-            top_help = influence_d[str(i)][helpful_or_harmful]  # these are 500
-            top_help_set.update(top_help)
-            top_help_list.extend(top_help)
-
+            tracker = [False]*10
+            counts = [0]*10
+            top_help = influence_d[str(i)][helpful_or_harmful]  # these should be 500
+            # sorted influences get first 500- 50 per class
+            new_top_help = []
+            for ind in top_help:
+                lb = idx_to_label[ind]
+                if tracker[lb] == False:
+                    counts[lb]+=1
+                    new_top_help.append(ind)
+                    if counts[lb] == 50:
+                        tracker[lb] = True
+                if sum(tracker) == 10:
+                    break
+            assert (len(new_top_help)==500)
+            top_help_set.update(new_top_help)
+            top_help_list.extend(new_top_help)
     print("length of list "+str(len(top_help_list)))
     print("length of set "+str(len(top_help_set)))
 
@@ -233,25 +251,25 @@ def test(testloader, net):
         print('Accuracy of %5s : %2d %%' % (
             classes[i], 100 * class_correct[i] / class_total[i]))
 
-def influence_dataset(network_names, dataset, trainloader, testloader, batch_size):
-    super_trainloader = create_super_ds(network_names, trainloader, batch_size, "helpful")
+def influence_dataset(network_names, dataset, train, trainloader, testloader, batch_size):
+    super_trainloader = create_super_ds(network_names, train, trainloader, batch_size, "helpful")
     print("-------------- Training and Testing using max Inflence DS --------------")
     train_models(network_names, dataset, super_trainloader, testloader, batch_size)
 
 
-def harmful_dataset(network_names, dataset, trainloader, testloader, batch_size):
-    super_trainloader = create_super_ds(network_names, trainloader, batch_size, "harmful")
+def harmful_dataset(network_names, dataset, train, trainloader, testloader, batch_size):
+    super_trainloader = create_super_ds(network_names, train, trainloader, batch_size, "harmful")
     print("-------------- Training and Testing using min influence DS --------------")
     train_models(network_names, dataset, super_trainloader, testloader, batch_size)
 
 
-def baseline_dataset(network_names, dataset, trainloader, testloader, batch_size):
+def baseline_dataset(network_names, dataset, train, trainloader, testloader, batch_size):
     # create function that tests accuracy on a randomly subsampled, well distributed dataset
-    random_trainloader = create_random_ds(network_names, trainloader, batch_size)
+    random_trainloader = create_random_ds(network_names, train, trainloader, batch_size)
     print("-------------- Training and Testing using Random DS --------------")
     train_models(network_names, dataset, random_trainloader, testloader, batch_size)
 
-def full_dataset(network_names, dataset, trainloader, testloader, batch_size):
+def full_dataset(network_names, dataset, train, trainloader, testloader, batch_size):
 
     # network_names = ["vgg", "lenet","resnet"]
     # # network_names = ["models/vgg", "models/lenet","models/resnet"]
@@ -261,6 +279,7 @@ def full_dataset(network_names, dataset, trainloader, testloader, batch_size):
     # trainloader, testloader = data_loader(model, dataset, batch_size)
     print("-------------- Training and Testing using Original DS --------------")
     train_models(network_names, dataset, trainloader, testloader, batch_size)
+
 #---------------------------------------
 if __name__ == '__main__':
     dataset1 = "mnist"               # run for for MNIST and store results in a csv or something
@@ -270,9 +289,9 @@ if __name__ == '__main__':
     network_names = ["vgg11", "lenet","resnet18"]
     model = network(network_names[0], dataset)
     model.cuda()  #dummy model j
-    trainloader, testloader = data_loader(model, dataset, batch_size)
-    run_influence_calc(network_names, dataset, trainloader, testloader, batch_size = batch_size)
-    # influence_dataset(network_names, dataset, trainloader, testloader, batch_size)
-    # baseline_dataset(network_names, dataset, trainloader, testloader, batch_size) #add code to save results
-    # harmful_dataset(network_names, dataset, trainloader, testloader, batch_size)
-    # full_dataset(network_names, dataset, trainloader, testloader, batch_size)
+    train, trainloader, testloader = data_loader(model, dataset, batch_size)
+    # run_influence_calc(network_names, dataset, trainloader, testloader, batch_size = batch_size)
+    influence_dataset(network_names, dataset, train, trainloader, testloader, batch_size)
+    baseline_dataset(network_names, dataset, train, trainloader, testloader, batch_size) #add code to save results
+    harmful_dataset(network_names, dataset, train, trainloader, testloader, batch_size)
+    # full_dataset(network_names, dataset, train, trainloader, testloader, batch_size)

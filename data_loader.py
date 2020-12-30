@@ -165,7 +165,7 @@ def cifar_10_data_loader(batch_size):
     train_loader = torch.utils.data.DataLoader(dataset, shuffle=False, batch_size=batch_size, num_workers=1)
     test_dataset = datasets.CIFAR10(root=data_loc, train=False, transform=transform_test)
     test_loader = torch.utils.data.DataLoader(test_dataset, shuffle=False, batch_size=batch_size)
-    return train_loader, test_loader
+    return dataset, train_loader, test_loader
 
 
 def cifar_100_data_loader(batch_size):
