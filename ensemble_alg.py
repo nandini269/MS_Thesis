@@ -138,7 +138,7 @@ def get_poor_subset(ensemble, trainloader, train, batch_size, cap_size, num_clas
     with torch.no_grad():
         l_d = {}
         corr_inds = {}
-        for i,data in enumerate(train):  # per batch_size
+        for i,data in enumerate(train):
             predicteds = []
             image, label = data[0].cuda(), data[1]
             for model in ensemble:
@@ -369,13 +369,13 @@ if __name__ == '__main__':
     else:
         filtered = True
     data_all = get_dataset(batch_size, dname, filtered)
-    pp = PdfPages('iref_'+dname+'_'+str(filtered)+'_'+str(num_epochs)+'_4.pdf')
+    pp = PdfPages('iref_'+dname+'_'+str(filtered)+'_'+str(num_epochs)+'_5.pdf')
     network_names_mnist = ["vgg11","vgg13","resnet18", "resnet34","mlp"] # use mlp just for mnist
     network_names = ["vgg11","vgg13","resnet18", "resnet34"]
     for i in range(3):  # need to plot means?
         network_name = np.random.choice(network_names)
         e_trains, vals, ensemble_vals, e_tests, data_prop =  algorithm2_random(data_all, dname, network_name, batch_size, num_epochs, filtered)
-        b_trains, b_vals, b_tests = baseline3(data_all, dname, network_name, batch_size, num_epochs, filtered)
+        b_trains, b_vals, b_tests = baseline2(data_all, dname, network_name, batch_size, num_epochs, filtered)
         # plot it
         fig = plt.figure()
         xs = (np.arange(len(vals))+1)*5
