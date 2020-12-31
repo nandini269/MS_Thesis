@@ -293,6 +293,6 @@ if __name__ == '__main__':
     train, trainloader, testloader = data_loader(model, dataset, batch_size)
     # run_influence_calc(network_names, dataset, trainloader, testloader, batch_size = batch_size)
     # influence_dataset(network_names, dataset, train, trainloader, testloader, batch_size)
-    baseline_dataset(network_names, dataset, train, trainloader, testloader, batch_size) #add code to save results
-    harmful_dataset(network_names, dataset, train, trainloader, testloader, batch_size)
-    # full_dataset(network_names, dataset, train, trainloader, testloader, batch_size)
+    # baseline_dataset(network_names, dataset, train, trainloader, testloader, batch_size) #add code to save results
+    # harmful_dataset(network_names, dataset, train, trainloader, testloader, batch_size)
+    full_dataset(network_names, dataset, train, trainloader, testloader, batch_size)
