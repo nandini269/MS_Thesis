@@ -264,7 +264,7 @@ def get_dataset(batch_size, dname, filtered):
 
 def algorithm2_random(data_all, dname, network_name, batch_size, num_epochs, filtered=True): # Uses same model
     train, val, trainloader,valloader,testloader = data_all # get_dataset(batch_size, dname, filtered) # get_mnist(batch_size)
-    subsample_size = round(len(train)/3) # subsample_size = round(len(train)/opts.num_iters) # 5 iterations in total 7500/5 = 1500
+    subsample_size = round(len(train)/opts.num_iters) # 5 iterations in total 7500/5 = 1500 round(len(train)/3) 
     ensemble = {}
     num_classes = opts.num_classes
     # set seed
